@@ -19,7 +19,13 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('',home),
-    path('home', home),
-    path('save',save_student),
+    path('',inicio),
+    path('inicio', inicio),
+    path('libro', libro),
+    path('busqueda', busqueda),
+    path('prestamo', prestamo),
+    path('retorno', retorno),
+    path('multa', multa),
+    path('etiqueta', etiqueta),
+    path('alumno', alumno),
 ]

@@ -7,71 +7,84 @@
     <title>Biblioteca Junipero</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
   </head>
-  <body>
+  <body style="margin-top: 0; padding-top: 0;">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <nav class="navbar bg-body-tertiary"">
+    <div class="d-flex flex-column">
+    <nav class="navbar bg-body-tertiary navbar-expand-lg"style="padding: 0;">
         <div class="container-fluid justify-content-center allign-items-center" style="background-color:#1C4E46 ;">
           <span class="navbar-brand mb-0 h1" style="color: white;">
-            <img src="{% static '/COLJ_LOG.png' %}" alt="logo" height="45" style="margin-right: 10;"> Biblioteca Junipero</span>
+            <img src="{% static '/COLJ_LOG.png' %}" alt="logo" height="45" style="margin-right: 20px; vertical-align: middle;"> Biblioteca Junipero</span>
         </div>
+    </div>
       <div class="container-fluid justify-content-center allign-items-center" style="background-color:#dfe8e6 ;" >
       <ul class="nav nav-tabs justify-content-center allign-items-center">
-        <li class="nav-item">
-            {% if current_tab == 'Inicio' %}
-                <a class="nav-link active" aria-current="page" href="/home">Inicio</a>
+        <li class="nav-item" style="margin-top: 10px;margin-left: 5px;">
+            {% if current_tab == 'inicio' %}
+                <a class="nav-link active" aria-current="page" href="/inicio">Inicio</a>
             {% else %}
-            <a class="nav-link " aria-current="page" href="/home">Inicio</a>
+            <a class="nav-link " aria-current="page" href="/inicio">Inicio</a>
             {% endif %}
         </li>
-        <li class="nav-item">
-            {% if current_tab == 'Alumnos' %}
-            <a class="nav-link active" aria-current="page" href="/home">Alumnos</a>
+        <li class="nav-item" style="margin-top: 10px;margin-left: 5px;">
+            {% if current_tab == 'alumno' %}
+            <a class="nav-link active" aria-current="page" href="/alumno">Alumnos</a>
         {% else %}
-        <a class="nav-link " aria-current="page" href="/home">Alumnos</a>
+        <a class="nav-link " aria-current="page" href="/alumno">Alumnos</a>
         {% endif %}
         </li>
-        <li class="nav-item">
-            {% if current_tab == 'Libros' %}
-                  <a class="nav-link active" aria-current="page" href="/home">Libros</a>
+        <li class="nav-item" style="margin-top: 10px;margin-left: 5px;">
+            {% if current_tab == 'libro' %}
+                  <a class="nav-link active" aria-current="page" href="/libro">Libros</a>
             {% else %}
-                 <a class="nav-link " aria-current="page" href="/home">Libros</a>
+                 <a class="nav-link " aria-current="page" href="/libro">Libros</a>
         {% endif %}
         </li>
-        <li class="nav-item">
-            {% if current_tab == 'Buequeda' %}
-                <a class="nav-link active" aria-current="page" href="/home">Busqueda</a>
+        <li class="nav-item" style="margin-top: 10px; margin-left: 5px;">
+            {% if current_tab == 'busqueda' %}
+                <a class="nav-link active" aria-current="page" href="/busqueda">Busqueda</a>
             {% else %}
-                <a class="nav-link " aria-current="page" href="/home">Busqueda</a>
+                <a class="nav-link " aria-current="page" href="/busqueda">Busqueda</a>
             {% endif %}
           </li>
-        <li class="nav-item">
-            {% if current_tab == 'Prestamo' %}
-                <a class="nav-link active" aria-current="page" href="/home">Prestamos</a>
+        <li class="nav-item" style="margin-top: 10px; margin-left: 5px;">
+            {% if current_tab == 'prestamo' %}
+                <a class="nav-link active" aria-current="page" href="/prestamo">Prestamos</a>
             {% else %}
-                <a class="nav-link " aria-current="page" href="/home">Prestamos</a>
-            {% endif %}
-          </li>
-        </li>
-        <li class="nav-item">
-            {% if current_tab == 'Retorno' %}
-                <a class="nav-link active" aria-current="page" href="/home">Retornos</a>
-            {% else %}
-                <a class="nav-link " aria-current="page" href="/home">Retornos</a>
+                <a class="nav-link " aria-current="page" href="/prestamo">Prestamos</a>
             {% endif %}
           </li>
         </li>
-        <li class="nav-item">
-            {% if current_tab == 'Multas' %}
-                <a class="nav-link active" aria-current="page" href="/home">Multas</a>
+        <li class="nav-item" style="margin-top: 10px;margin-left: 5px;">
+            {% if current_tab == 'retorno' %}
+                <a class="nav-link active" aria-current="page" href="/retorno">Retornos</a>
             {% else %}
-                <a class="nav-link " aria-current="page" href="/home">Multas</a>
+                <a class="nav-link " aria-current="page" href="/retorno">Retornos</a>
+            {% endif %}
+          </li>
+        </li>
+        <li class="nav-item"style="margin-top: 10px;margin-left: 5px;">
+            {% if current_tab == 'multa' %}
+                <a class="nav-link active" aria-current="page" href="/multa">Multas</a>
+            {% else %}
+                <a class="nav-link " aria-current="page" href="/multa">Multas</a>
+            {% endif %}
+        </li>
+        <li class="nav-item" style="margin-top: 10px;margin-left: 5px;">
+            {% if current_tab == 'etiqueta' %}
+                <a class="nav-link active" aria-current="page" href="/etiqueta">Etiquetas</a>
+            {% else %}
+                <a class="nav-link " aria-current="page" href="/etiqueta">Etiquetas</a>
             {% endif %}
         </li>
       </ul>
       </div>
     </nav>
+
+    {% block main_content %}
+    {% endblock %}
+
 </body>
 </html>
