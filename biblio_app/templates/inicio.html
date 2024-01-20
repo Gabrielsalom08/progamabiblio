@@ -9,11 +9,6 @@
         ¡Bienvenid@ al sitio de la biblioteca! Si ya tienes una cuenta, por favor inicia sesión, ya que muchas funciones no estarán disponibles si no lo haces.
         Si encuentras algún problema con el inicio de sesión, por favor comunícate con el personal de sistemas.
     </p>
-    {% if user.is_authenticated %}
-    <p>Sesión iniciada como {{ user.username }}</p>
-    {% else %}
-    <p>No hay sesión iniciada</p>
-    {% endif %}
 </div>
 <div class="container h-100 d-flex justify-content-center align-items-center">
     <div class="container mt-5">
@@ -24,8 +19,7 @@
             </div>
             <div class="col-md-6">
                 <!-- Formulario de Inicio de Sesión -->
-                <form method="post" action="{% url 'iniciar_sesion' %}">
-                    {% csrf_token %}
+                <form>
                     <h2>Iniciar Sesión</h2>
                     <div class="mb-3">
                         <label for="usuario" class="form-label">Usuario:</label>
