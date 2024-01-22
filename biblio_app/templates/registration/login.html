@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+{% load static %}
+
+ {% block main_content %}
+ <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card" style="background-color: #1C4E46; color: white;">
+          <div class="card-header" style="background-color: #1C4E46; color: white;">
+            <h4 class="text-center">Iniciar Sesión</h4>
+          </div>
+          <div class="card-body">
+            <form method="post" action="{% url 'login' %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="username" class="form-label" style="color: #ffffff;">Nombre de Usuario:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label" style="color: #ffffff;">Contraseña:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+              </div>
+              <button type="submit" class="btn btn-primary" style="background-color: #2a796c; border-color: #000000;" >Iniciar Sesión</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ {%endblock%}

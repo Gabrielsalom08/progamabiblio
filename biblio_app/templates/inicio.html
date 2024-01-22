@@ -18,20 +18,17 @@
                 <img src="{% static '/COLJ_LOGO.jpg' %}" alt="logo-completo" height="150">
             </div>
             <div class="col-md-6">
-                <!-- Formulario de Inicio de Sesión -->
-                <form>
-                    <h2>Iniciar Sesión</h2>
-                    <div class="mb-3">
-                        <label for="usuario" class="form-label">Usuario:</label>
-                        <input type="text" class="form-control" id="usuario" name="usuario" required>
-                    </div>
-                    <div class="mb-3" style="margin-bottom: 100px;">
-                        <label for="contrasena" class="form-label">Contraseña:</label>
-                        <input type="password" class="form-control" id="contrasena" name="contrasena" required style="margin-bottom: 30px;">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary" style="background-color: #1C4E46; border-color: black;">Iniciar Sesión</button>
-                </form>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                      <div class="alert alert-success" role="alert">
+                        ¡Tienes una sesión activa! Bienvenid@.
+                      </div>
+                    {% else %}
+                      <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black;" >
+                        Favor de iniciar sesión para poder hacer uso de todas las funciones del sistema.
+                        <a href="{% url 'login' %}" class="alert-link" >Haz Click Aqui Para Iniciar Sesión</a>
+                      </div>
+                    {% endif %}
             </div>
             
         </div>
