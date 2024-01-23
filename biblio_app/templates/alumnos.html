@@ -43,7 +43,11 @@
                 </table>
             </form>
             {% if user.is_authenticated %}
-            <button class="btn btn-primary" type="button"> Agregar varios Alumnos</button>
+            <form class="d-flex" action="/alumno/cargar_excel" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="excel_file">
+                <button class="btn btn-primary" type="submit" style="align-self: center;"> Cargar desde Excel</button>
+            </form>            
             <button class="btn btn-danger" type="button"> Fin de curso</button>
             {% endif %}
         </div>
