@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<style>
+    body {
+        background-color: #1C4E46;
+        color: white;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    h2 {
+        color: #1C4E46;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    label {
+        color: white;
+        margin-top: 10px;
+    }
+
+    input {
+        background-color: white;
+        color: #1C4E46;
+        border: 1px solid #1C4E46;
+        border-radius: 8px;
+        padding: 8px;
+        margin-top: 5px;
+        width: 200px;
+    }
+
+    button {
+        background-color: white;
+        color: #1C4E46;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+</style>
+
+<h2>Editar Alumno</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="nombre">Nombre:</label>
+    <input type="text" name="nombre" value="{{ alumno.nombre }}"><br>
+    <label for="apellido">Apellido:</label>
+    <input type="text" name="apellido" value="{{ alumno.apellido }}"><br>
+    <label for="clave">Clave:</label>
+    <input type="text" name="clave" value="{{ alumno.clave }}"><br>
+    <label for="grupo">Grupo:</label>
+    <input type="text" name="grupo" value="{{ alumno.grupo }}"><br>
+    <button type="submit">Guardar cambios</button>
+</form>
+{% endblock %}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<style>
+    body {
+        background-color: #1C4E46;
+        color: white;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    h2 {
+        color: #1C4E46;
+    }
+
+    p {
+        color: white;
+    }
+
+    a {
+        color: #0074cc;  /* Cambiado a un color azul */
+        text-decoration: none;
+        margin-right: 10px;
+        font-weight: bold;
+    }
+</style>
+
+<h2>Detalles del Alumno</h2>
+<p>Nombre: {{ alumno.nombre }}</p>
+<p>Apellido: {{ alumno.apellido }}</p>
+<p>Clave: {{ alumno.clave }}</p>
+<p>Grupo: {{ alumno.grupo }}</p>
+<a href="{% url 'editar_alumno' pk=alumno.pk %}">Editar</a>
+<a href="{% url 'eliminar_alumno' pk=alumno.pk %}">Eliminar</a>
+{% endblock %}
