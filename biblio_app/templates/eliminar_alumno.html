@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<style>
+    body {
+        background-color: #1C4E46;
+        color: white;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    h2 {
+        color: #1C4E46;
+    }
+
+    button {
+        background-color: white;
+        color: #1C4E46;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    a {
+        color: white;
+        text-decoration: none;
+        margin-left: 10px;
+    }
+</style>
+
+<h2>¿Estás seguro de que deseas eliminar a {{ alumno.nombre }} {{ alumno.apellido }}?</h2>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Sí, eliminar</button>
+</form>
+<a href="{% url 'alumno_detalle' pk=alumno.pk %}">Cancelar</a>
+{% endblock %}

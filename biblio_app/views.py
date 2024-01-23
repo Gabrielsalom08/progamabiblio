@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from .models import *
 from django.db.models import Q
+from django.shortcuts import render, get_object_or_404
 #register your models here
 
 # Create your views here.
@@ -60,4 +61,42 @@ def agregar_alum(request):
                         grupo=request.POST['grupo'],)
     alumno_item.save()
     return redirect('/alumno')
+
+def alumno_detalle(request, pk):
+    # Usamos get_object_or_404 para obtener el objeto alumno o retornar un error 404 si no se encuentra
+    alumno_obj = get_object_or_404(alumno, pk=pk)
     
+    return render(request, 'alumno_detalle.html', {'alumno': alumno_obj})
+
+from django.shortcuts import render, get_object_or_404, redirect
+
+# ... tus funciones existentes ...
+
+def editar_alumno(request, pk):
+    # Usamos get_object_or_404 para obtener el objeto alumno o retornar un error 404 si no se encuentra
+    alumno_obj = get_object_or_404(alumno, pk=pk)
+
+    if request.method == 'POST':
+        # Procesa el formulario de edición aquí
+        alumno_obj.nombre = request.POST['nombre']
+        alumno_obj.apellido = request.POST['apellido']
+        alumno_obj.clave = request.POST['clave']
+        alumno_obj.grupo = request.POST['grupo']
+        alumno_obj.save()
+
+        # Después de guardar los cambios, redirige a la página de alumnos
+        return redirect('/alumno')
+
+    return render(request, 'editar_alumno.html', {'alumno': alumno_obj})
+
+def eliminar_alumno(request, pk):
+    alumno_obj = get_object_or_404(alumno, pk=pk)
+
+    if request.method == 'POST':
+        # Utiliza el método delete() en el queryset, no en la instancia del modelo
+        alumno.objects.filter(pk=pk).delete()
+
+        # Después de eliminar, redirige a la página de alumnos
+        return redirect('/alumno')
+
+    return render(request, 'eliminar_alumno.html', {'alumno': alumno_obj})

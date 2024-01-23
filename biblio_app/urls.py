@@ -29,5 +29,8 @@ urlpatterns = [
     path('etiqueta', etiquetas),
     path('alumno', alumno_pest),
     path('',include("django.contrib.auth.urls")),
-    path('alumno/agregar',agregar_alum)
+    path('alumno/agregar',agregar_alum),
+    path('alumno/<int:pk>/', alumno_detalle, name='alumno_detalle'),
+    path('alumno/editar/<int:pk>/', editar_alumno, name='editar_alumno'),
+    path('alumno/eliminar/<int:pk>/', eliminar_alumno, name='eliminar_alumno'),
 ]

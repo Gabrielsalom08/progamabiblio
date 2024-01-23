@@ -63,25 +63,30 @@
             </div>
             <div class="row" style="margin-top: 20px;">
                 <div class="container" style="overflow-y:auto ; height: 400px;">
-                <table class="table table-hover">
-                    <thead>
-                        <td>Clave</td>
-                        <td>Nombre</td>
-                        <td>Apellido</td>
-                        <td>Grupo</td>
-                    </thead>
-                    <tbody>
-                        {%for alumno in alumnos%}
-                            <tr>
-                                <td><span class="btn btn-success">{{alumno.clave}}</span></td>
-                                <td>{{alumno.nombre}}</td>
-                                <td>{{alumno.apellido}}</td>
-                                <td>{{alumno.grupo}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                    <table class="table table-hover">
+                        <thead>
+                            <td>Clave</td>
+                            <td>Nombre</td>
+                            <td>Apellido</td>
+                            <td>Grupo</td>
+                        </thead>
+                        <tbody>
+                            {% for alumno in alumnos %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'alumno_detalle' pk=alumno.pk %}" class="btn btn-success">
+                                            {{ alumno.clave }}
+                                        </a>
+                                    </td>
+                                    <td>{{ alumno.nombre }}</td>
+                                    <td>{{ alumno.apellido }}</td>
+                                    <td>{{ alumno.grupo }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
+                
             </div>
         </div>
     </div>
