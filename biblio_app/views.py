@@ -7,6 +7,7 @@ from django.contrib import messages
 from .models import *
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
+import pandas as pd
 #register your models here
 
 # Create your views here.
@@ -100,3 +101,30 @@ def eliminar_alumno(request, pk):
         return redirect('/alumno')
 
     return render(request, 'eliminar_alumno.html', {'alumno': alumno_obj})
+
+def cargar_desde_excel(request):
+    if request.method == 'POST':
+        if 'excel_file' in request.FILES:
+            excel_file = request.FILES['excel_file']
+            df = pd.read_excel(excel_file)
+
+            # Verificar si todas las columnas necesarias están presentes en el DataFrame
+            required_columns = ['clave', 'nombre', 'apellido', 'grupo']
+            missing_columns = [col for col in required_columns if col not in df.columns]
+
+            if missing_columns:
+                missing_columns_str = ', '.join(missing_columns)
+                return HttpResponse(f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}.")
+
+            for index, row in df.iterrows():
+                alumno_item = alumno(
+                    clave=row['clave'],
+                    nombre=row['nombre'],
+                    apellido=row['apellido'],
+                    grupo=row['grupo'],
+                )
+                alumno_item.save()
+
+            return redirect('/alumno')
+
+    return render(request, 'tu_template_excel.html')
