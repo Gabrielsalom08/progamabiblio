@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from .models import *
+from django.db.models import Q
 #register your models here
 
 # Create your views here.
@@ -40,6 +41,23 @@ def login_view(request):
 
     return render(request, 'login.html')
 
-def alumo_pest(request):
-    alumnos = alumno.objects.all()
-    return render(request,request,"alumnos.html",context={"current_tab": "alumno","alumnos":alumnos})
+def alumno_pest(request):
+    query = request.GET.get('q')
+    if query:
+        # Realiza la búsqueda utilizando el campo 'nombre' o 'apellido' o clave o grupo
+        alumnos = alumno.objects.filter(Q(nombre__icontains=query) | Q(apellido__icontains=query)|Q(clave__icontains=query) |Q(grupo__icontains=query) )
+    else:
+        # Si no hay búsqueda, muestra todos los alumnos
+        alumnos = alumno.objects.all()
+
+    return render(request, "alumnos.html", {"current_tab": "alumno", "alumnos": alumnos})
+
+
+def agregar_alum(request):
+    alumno_item= alumno(clave=request.POST['clave'],
+                        nombre=request.POST['nombre'],
+                        apellido=request.POST['apellido'],
+                        grupo=request.POST['grupo'],)
+    alumno_item.save()
+    return redirect('/alumno')
+    
