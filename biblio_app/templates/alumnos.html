@@ -48,7 +48,7 @@
                 <input type="file" name="excel_file">
                 <button class="btn btn-primary" type="submit" style="align-self: center;"> Cargar desde Excel</button>
             </form>            
-            <button class="btn btn-danger" type="button"> Fin de curso</button>
+            <button class="btn btn-danger" type="button" onclick="confirmarBorrarAlumnos()"> Fin de curso</button>
             {% endif %}
         </div>
     </div>
@@ -66,7 +66,7 @@
                 <p>{{alumnos|length}} alumnos registrados</p>
             </div>
             <div class="row" style="margin-top: 20px;">
-                <div class="container" style="overflow-y:auto ; height: 400px;">
+                <div class="container" style="overflow-y:auto ;">
                     <table class="table table-hover">
                         <thead>
                             <td>Clave</td>
@@ -78,9 +78,13 @@
                             {% for alumno in alumnos %}
                                 <tr>
                                     <td>
+                                        {% if user.is_authenticated %}
                                         <a href="{% url 'alumno_detalle' pk=alumno.pk %}" class="btn btn-success">
                                             {{ alumno.clave }}
                                         </a>
+                                        {%else%}
+                                        {{ alumno.clave }}
+                                        {%endif%}
                                     </td>
                                     <td>{{ alumno.nombre }}</td>
                                     <td>{{ alumno.apellido }}</td>
@@ -95,5 +99,15 @@
         </div>
     </div>
 </div>
-
+<script>
+    function confirmarBorrarAlumnos() {
+        if (confirm("¿Estás seguro de que quieres borrar a todos los alumnos?")) {
+            // Si el usuario confirma, redirige al servidor para borrar los datos
+            window.location.href = "/alumno/borrar_todos";
+        } else {
+            // Si el usuario cancela, no hagas nada
+            // Puedes agregar un mensaje o realizar alguna acción adicional si lo deseas
+        }
+    }
+</script>
  {% endblock %}

@@ -128,3 +128,13 @@ def cargar_desde_excel(request):
             return redirect('/alumno')
 
     return render(request, 'tu_template_excel.html')
+
+def borrar_todos_los_alumnos(request):
+    if request.method == 'GET':
+        # Realiza la lógica para borrar todos los registros de la tabla de alumnos
+        alumno.objects.all().delete()
+
+        # Redirige de vuelta a la página de alumnos
+        return redirect('/alumno')
+
+    return HttpResponse("Solicitud no válida.")

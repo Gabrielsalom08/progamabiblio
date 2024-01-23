@@ -34,4 +34,7 @@ urlpatterns = [
     path('alumno/editar/<int:pk>/', editar_alumno, name='editar_alumno'),
     path('alumno/eliminar/<int:pk>/', eliminar_alumno, name='eliminar_alumno'),
     path('alumno/cargar_excel', cargar_desde_excel, name='cargar_desde_excel'),
+    path('alumno/borrar_todos', borrar_todos_los_alumnos, name='borrar_todos_los_alumnos'),
+
 ]
+
