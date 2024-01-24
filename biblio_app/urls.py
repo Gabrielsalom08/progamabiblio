@@ -21,7 +21,7 @@ from .views import *
 urlpatterns = [
     path('',inicio),
     path('inicio', inicio),
-    path('libro', libros),
+    path('libro', libros_pest),
     path('busqueda', busquedas),
     path('prestamo', prestamos),
     path('retorno', retornos),
@@ -35,6 +35,14 @@ urlpatterns = [
     path('alumno/eliminar/<int:pk>/', eliminar_alumno, name='eliminar_alumno'),
     path('alumno/cargar_excel', cargar_desde_excel, name='cargar_desde_excel'),
     path('alumno/borrar_todos', borrar_todos_los_alumnos, name='borrar_todos_los_alumnos'),
+    path('libro/eliminar_por_titulo/', eliminar_libros_por_titulo, name='eliminar_libros_por_titulo'),
+    path('libro/agregar/',agregar_libros),
+    path('libro/<str:codigolibro>/', libro_detalle, name='libro_detalle'),
+    path('libro/editar/<str:codigolibro>/', editar_libro, name='editar_libro'),
+    path('libro/eliminar/<str:codigolibro>/', eliminar_libro, name='eliminar_libro'),
+    path('libro/cargar_excel', cargar_desde_excel_libro, name='cargar_desde_excel_libros'),
+    path('libro/borrar_todos', borrar_todos_los_libros, name='borrar_todos_los_libros'),
+    path('libro/eliminar_por_titulo/', eliminar_libros_por_titulo, name='eliminar_libros_por_titulo'),
 
 ]
 
