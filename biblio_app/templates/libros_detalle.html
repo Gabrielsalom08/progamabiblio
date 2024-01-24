@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<style>
+    body {
+        background-color: #1C4E46;
+        color: white;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    h2 {
+        color: #1C4E46;
+    }
+
+    p {
+        color: white;
+    }
+
+    a {
+        color: #0074cc;  /* Cambiado a un color azul */
+        text-decoration: none;
+        margin-right: 10px;
+        font-weight: bold;
+    }
+</style>
+
+<h2>Detalles del Libro</h2>
+<p>Título: {{ libro.titulo }}</p>
+<p>Autor: {{ libro.autor }}</p>
+<p>Ilustrador: {{ libro.ilustrador }}</p>
+<p>Fecha de Publicación: {{ libro.fechapublicacion }}</p>
+<p>Editorial: {{ libro.editorial }}</p>
+<p>Número de Tomo: {{ libro.numerotomo }}</p>
+<p>Características Especiales: {{ libro.caracteristicasespeciales }}</p>
+<p>Disponible: {% if libro.disponible %}Sí{% else %}No{% endif %}</p>
+<p>Ubicación en la Biblioteca: {{ libro.ubicacionbiblio }}</p>
+<p>Público Dirigido: {{ libro.publicodirigido }}</p>
+
+<a href="{% url 'editar_libro' codigolibro=libro.codigolibro %}">Editar</a>
+<a href="{% url 'eliminar_libro' codigolibro=libro.codigolibro %}">Eliminar</a>
+{% endblock %}
