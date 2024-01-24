@@ -97,25 +97,34 @@
                             <td>Titulo</td>
                             <td>Autor</td>
                             <td>Editorial</td>
+                            <td>Acciones</td>  <!-- Nueva celda para Acciones -->
                         </thead>
+                        
                         <tbody>
                             {% for libro in libros %}
                                 <tr>
                                     <td>
                                         {% if user.is_authenticated %}
-                                        <a href="{% url 'libro_detalle' codigolibro=libro.codigolibro %}" class="btn btn-success">
+                                            <a href="{% url 'libro_detalle' codigolibro=libro.codigolibro %}" class="btn btn-success">
+                                                {{ libro.codigolibro }}
+                                            </a>
+                                        {% else %}
                                             {{ libro.codigolibro }}
-                                        </a>
-                                        {%else%}
-                                        {{ libro.codigolibro }}
-                                        {%endif%}
+                                        {% endif %}
                                     </td>
                                     <td>{{ libro.titulo }}</td>
                                     <td>{{ libro.autor }}</td>
                                     <td>{{ libro.editorial }}</td>
+                                    <td>
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'editar_libro' codigolibro=libro.codigolibro %}" class="btn btn-warning"><i class="bi bi-pencil"></i>editar</a>
+                                            <a href="{% url 'eliminar_libro' codigolibro=libro.codigolibro %}" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i>eliminar</a>    
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
+                        
                     </table>
                 </div>
                 

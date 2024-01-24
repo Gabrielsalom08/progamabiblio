@@ -68,30 +68,44 @@
             <div class="row" style="margin-top: 20px;">
                 <div class="container" style="overflow-y:auto ;">
                     <table class="table table-hover">
-                        <thead>
-                            <td>Clave</td>
-                            <td>Nombre</td>
-                            <td>Apellido</td>
-                            <td>Grupo</td>
-                        </thead>
-                        <tbody>
-                            {% for alumno in alumnos %}
-                                <tr>
-                                    <td>
-                                        {% if user.is_authenticated %}
-                                        <a href="{% url 'alumno_detalle' pk=alumno.pk %}" class="btn btn-success">
-                                            {{ alumno.clave }}
-                                        </a>
-                                        {%else%}
-                                        {{ alumno.clave }}
-                                        {%endif%}
-                                    </td>
-                                    <td>{{ alumno.nombre }}</td>
-                                    <td>{{ alumno.apellido }}</td>
-                                    <td>{{ alumno.grupo }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
+                        <!-- Agrega estas líneas en el encabezado de la tabla -->
+<thead>
+    <td>Clave</td>
+    <td>Nombre</td>
+    <td>Apellido</td>
+    <td>Grupo</td>
+    <td>Acciones</td> <!-- Nueva columna para botones -->
+</thead>
+
+<tbody>
+    {% for alumno in alumnos %}
+        <tr>
+            <td>
+                {% if user.is_authenticated %}
+                <a href="{% url 'alumno_detalle' pk=alumno.pk %}" class="btn btn-success">
+                    {{ alumno.clave }}
+                </a>
+                {% else %}
+                {{ alumno.clave }}
+                {% endif %}
+            </td>
+            <td>{{ alumno.nombre }}</td>
+            <td>{{ alumno.apellido }}</td>
+            <td>{{ alumno.grupo }}</td>
+            <td>
+                {% if user.is_authenticated %}
+                <a href="{% url 'editar_alumno' pk=alumno.pk %}" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> editar<!-- Ícono de lápiz -->
+                </a>
+                <button class="btn btn-danger" onclick="borrarAlumno('{{ alumno.pk }}')">
+                    <i class="bi bi-trash"></i> eliminar<!-- Ícono de papelera -->
+                </button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>
+
                     </table>
                 </div>
                 
@@ -110,4 +124,29 @@
         }
     }
 </script>
+<script>
+    function borrarAlumno(pk) {
+        if (confirm("¿Estás seguro de que quieres borrar a este alumno?")) {
+            // Petición AJAX para eliminar el registro
+            $.ajax({
+                type: 'POST',
+                url: '/alumno/eliminar/' + pk +'/',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function () {
+                    // Recargar la página o actualizar la tabla después de borrar
+                    location.reload();
+                },
+                error: function () {
+                    // Manejar errores si es necesario
+                    location.reload();
+                }
+            });
+        } else {
+            // Si el usuario cancela, no hagas nada
+        }
+    }
+</script>
+
  {% endblock %}

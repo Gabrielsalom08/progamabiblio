@@ -10,14 +10,13 @@ import pandas as pd
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 
 #register your models here
 
 # Create your views here.
 def inicio(request):
     return render(request,"inicio.html",context={"current_tab": "inicio"})
-def busquedas(request):
-    return render(request,"busqueda.html",context={"current_tab": "busqueda"})
 def prestamos(request):
     return render(request,"prestamo.html",context={"current_tab": "prestamo"})
 def retornos(request):
@@ -89,17 +88,27 @@ def editar_alumno(request, pk):
 
     return render(request, 'editar_alumno.html', {'alumno': alumno_obj})
 
+
+
 def eliminar_alumno(request, pk):
-    alumno_obj = get_object_or_404(alumno, pk=pk)
+    try:
+        alumno_obj = get_object_or_404(alumno, pk=pk)
 
-    if request.method == 'POST':
-        # Utiliza el método delete() en el queryset, no en la instancia del modelo
-        alumno.objects.filter(pk=pk).delete()
+        if request.method == 'POST':
+            # Utiliza el método delete() en el queryset, no en la instancia del modelo
+            alumno.objects.filter(pk=pk).delete()
 
-        # Después de eliminar, redirige a la página de alumnos
-        return redirect('/alumno')
+            if request.is_ajax():
+                return redirect('/alumno')
 
-    return render(request, 'eliminar_alumno.html', {'alumno': alumno_obj})
+            # Después de eliminar, redirige a la página de alumnos
+            return redirect('/alumno')
+
+    except Exception as e:
+        # Devuelve detalles sobre el error en la respuesta AJAX
+        return JsonResponse({'error': str(e)}, status=500)
+
+    return render(request, 'borrar_alumno.html', {'alumno': alumno_obj})
 
 def cargar_desde_excel(request):
     if request.method == 'POST':
@@ -289,3 +298,18 @@ def eliminar_libros_por_titulo(request):
             libro.objects.filter(titulo=titulo).delete()
 
     return redirect('/libro')
+def busqueda_pest(request):
+    query = request.GET.get('q')
+    if query:
+        # Realiza la búsqueda utilizando el campo 'nombre' o 'apellido' o clave o grupo
+        libros = libro.objects.filter(Q(codigolibro__icontains=query) | Q(titulo__icontains=query)|Q(autor__icontains=query) |Q(editorial__icontains=query)|Q(ilustrador__icontains=query) )
+    else:
+        # Si no hay búsqueda, muestra todos los alumnos
+        libros = libro.objects.all()
+
+    return render(request,"busqueda.html",context={"current_tab": "busqueda", "libros": libros})
+def busqeda_detalle(request, codigolibro):
+    # Usamos get_object_or_404 para obtener el objeto alumno o retornar un error 404 si no se encuentra
+    libro_obj = get_object_or_404(libro, codigolibro=codigolibro)
+    
+    return render(request, 'busquedadetalle.html', {'libro': libro_obj})
