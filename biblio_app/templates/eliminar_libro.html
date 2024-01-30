@@ -11,8 +11,14 @@
         font-size: 18px;
     }
 
+    .container {
+        width: 50%;
+        margin: 100px auto; /* Ajusta el margen superior según sea necesario */
+        text-align: center;
+    }
+
     h2 {
-        color: #1C4E46;
+        color: #ffffff;
     }
 
     button {
@@ -30,19 +36,13 @@
         margin-left: 10px;
     }
 </style>
+<div class="container">
+    <h2>¿Estás seguro de que deseas eliminar el libro '{{ libro.titulo }}' con código '{{ libro.codigolibro }}'? Esta acción eliminará también todas las copias asociadas con este libro.</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Sí, eliminar</button>
+    </form>
 
-<h2>¿Estás seguro de que deseas eliminar el libro '{{ libro.titulo }}' con código '{{ libro.codigolibro }}'?</h2>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Sí, eliminar</button>
-</form>
-
-<!-- Agrega la opción para eliminar todos los libros con el mismo título -->
-<form method="post" action="{% url 'eliminar_libros_por_titulo' %}">
-    {% csrf_token %}
-    <input type="hidden" name="titulo" value="{{ libro.titulo }}">
-    <button type="submit">Sí, eliminar todos los libros con el mismo título</button>
-</form>
-
-<a href="{% url 'libro_detalle' codigolibro=libro.codigolibro %}">Cancelar</a>
+    <a href="/libro">Cancelar</a>
+</div>
 {% endblock %}

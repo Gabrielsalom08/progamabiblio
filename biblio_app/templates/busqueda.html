@@ -25,7 +25,7 @@
                         <th>Autor</th>
                         <th>Ilustrador</th>
                         <th>Editorial</th>
-                        <th>Ubicación</th>
+                        <th>Clasificacion Dewey</th>
                         <th>Disponible</th>
                         <th>Mas información</th>
                     </thead>
@@ -37,7 +37,7 @@
                                 <td>{{ libro.autor }}</td>
                                 <td>{{ libro.ilustrador }}</td>
                                 <td>{{ libro.editorial }}</td>
-                                <td>{{ libro.ubicacionbiblio }}</td>
+                                <td>{{ libro.dewy }}</td>
                                 <td>{% if libro.disponible %}Disponible{% else %}No Disponible{% endif %}</td>
                                 <td><a href="{% url 'busqueda_detalle' codigolibro=libro.codigolibro %}" class="btn btn-success"><i class="bi bi-pencil"></i>+</a></td>
                             </tr>

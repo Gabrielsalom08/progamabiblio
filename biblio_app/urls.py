@@ -38,6 +38,7 @@ urlpatterns = [
     path('libro/eliminar_por_titulo', eliminar_libros_por_titulo, name='eliminar_libros_por_titulo'),
     path('libro/agregar/', agregar_libros),
     path('busqueda/<int:codigolibro>', busqeda_detalle, name='busqueda_detalle'),
+    path('libro/cargar_excel_copia', cargar_copias_desde_excel, name='cargar_desde_excel_copias'),
     path('libro/agregar-copia/', agregar_copia, name='agregar_copia'),
     path('libro/<int:codigolibro>', libro_detalle, name='libro_detalle'),
     path('libro/editar/<int:codigolibro>', editar_libro, name='editar_libro'),

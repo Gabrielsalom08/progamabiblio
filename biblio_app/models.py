@@ -19,7 +19,7 @@ class Libro(models.Model):
     titulo = models.CharField(max_length=128)
     autor = models.CharField(max_length=100)
     ilustrador = models.CharField(max_length=100, null=True, blank=True)
-    fechapublicacion = models.IntegerField(null=True, blank=True)  # Modificación a IntegerField
+    fechapublicacion = models.IntegerField(null=True, blank=True)
     editorial = models.CharField(max_length=100)
     numerotomo = models.CharField(max_length=100, null=True, blank=True)
     caracteristicasespeciales = models.TextField(null=True, blank=True)

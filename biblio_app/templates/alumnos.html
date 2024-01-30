@@ -15,6 +15,7 @@
 </div>
 <div class="row">
     <div class="col-md-4">
+        <h6>Para agregar a un alumno de Pf o preprimaria ingresa su año como 0</h6>
         <div class="container" style="overflow-y: auto; height: 600px;">
             <form class="d-flex" action="/alumno/agregar" method="post">
                 {%csrf_token%}
@@ -28,7 +29,7 @@
                         <td><input type="text" class="form-control" name="apellido"></td>
                     </tr>
                     <tr>
-                        <td style="text-align:left; vertical-align:middle; padding-left:15px;">Grupo : </td>
+                        <td style="text-align:left; vertical-align:middle; padding-left:15px;">Año : </td>
                         <td><input type="text" class="form-control" name="grupo"></td>
                     </tr>
                     {% if user.is_authenticated %}
@@ -58,6 +59,8 @@
                 </form>
             </div>
             </nav>
+            <h6> Para mostrar todos los alumnos de preprimaria solo busca "0"</h6>
+            <h6> Para mostrar todos los alumnos despues de una busqueda realiza una busqueda sin contenido o apreta el boton de alumnos otra vez</h6>
             <div class="row" style="margin-top: 20 px;">
                 <p>{{alumnos|length}} alumnos registrados</p>
             </div>
@@ -69,17 +72,23 @@
     <td>Clave</td>
     <td>Nombre</td>
     <td>Apellido</td>
-    <td>Grupo</td>
+    <td>Año</td>
     <td>Acciones</td> <!-- Nueva columna para botones -->
 </thead>
 
 <tbody>
     {% for alumno in alumnos %}
         <tr>
-            <td>{{ alumno.clave }}</td>
+            <td>{{ alumno.clave|stringformat:"05d" }}</td>
             <td>{{ alumno.nombre }}</td>
             <td>{{ alumno.apellido }}</td>
-            <td>{{ alumno.grupo }}</td>
+            <td>
+                {% if alumno.grupo == 0 %}
+                    PF
+                {% else %}
+                    {{ alumno.grupo }}
+                {% endif %}
+            </td>
             <td>
                 {% if user.is_authenticated %}
                 <a href="{% url 'editar_alumno' pk=alumno.clave %}" class="btn btn-warning">

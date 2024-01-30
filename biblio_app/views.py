@@ -44,20 +44,26 @@ def login_view(request):
 def alumno_pest(request):
     query = request.GET.get('q')
     if query:
-        # Realiza la búsqueda utilizando el campo 'nombre', 'apellido', 'clave' o 'grupo'
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+        
+        # Realizar la búsqueda utilizando el campo 'nombre', 'apellido', 'clave' o 'grupo'
         alumnos = Alumno.objects.filter(
             Q(nombre__icontains=query) |
             Q(apellido__icontains=query) |
-            Q(nombre__icontains=query.split()[0]) &  # Busca el primer nombre
-            Q(apellido__icontains=query.split()[-1]) |# Busca el último nombre
+            Q(nombre__icontains=query.split()[0]) &  # Buscar el primer nombre
+            Q(apellido__icontains=query.split()[-1]) |  # Buscar el último apellido
             Q(clave__icontains=query) |
             Q(grupo__icontains=query)
         ).distinct()
     else:
-        # Si no hay búsqueda, muestra todos los alumnos
+        # Si no hay búsqueda, mostrar todos los alumnos
         alumnos = Alumno.objects.all()
 
-    return render(request, "alumnos.html", {"current_tab": "alumno", "alumnos": alumnos})
+    # Devolver una respuesta con la lista de alumnos encontrados
+    return render(request, 'alumnos.html', {"current_tab": "alumno", "alumnos": alumnos})
 
 
 def agregar_alum(request):
@@ -122,7 +128,13 @@ def cargar_desde_excel(request):
             return HttpResponse(f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}.")
 
         for index, row in df.iterrows():
+            if 'clave' in df.columns and not pd.isna(row['clave']):
+                clave = row['clave']
+            else:
+                clave = None  # Asignar None para que se autoasigne la clave por el sistema
+
             alumno_item = Alumno(
+                clave=clave,
                 nombre=row['nombre'],
                 apellido=row['apellido'],
                 grupo=row['grupo'],
@@ -134,44 +146,69 @@ def cargar_desde_excel(request):
     return render(request, 'tu_template_excel.html')
 
 def borrar_todos_los_alumnos(request):
-    if request.method == 'GET':
-        Alumno.objects.all().delete()
-        return redirect('/alumno')
-
-    return HttpResponse("Solicitud no válida.")
+    try:
+        # Eliminar todos los alumnos con un valor de grupo de 6 o superior
+        Alumno.objects.filter(grupo__gte=6).delete()
+        
+        # Modificar todos los datos en la tabla de alumnos sumando uno al valor de grupo
+        Alumno.objects.all().update(grupo=models.F('grupo') + 1)
+        
+        # Redireccionar a la página de alumnos
+        return redirect('/alumno')  # Cambia 'alumnos' por la URL de la página de alumnos en tu proyecto
+    
+    except ValidationError as e:
+        # Si se produce una excepción de validación, mostrar un mensaje de error
+        return render(request, 'error.html', {'mensaje': '; '.join(e.messages)})
 
 def libros_pest(request):
     query = request.GET.get('q')
     if query:
-        libros = Libro.objects.filter(Q(codigolibro__icontains=query) | Q(titulo__icontains=query) | Q(autor__icontains=query) | Q(editorial__icontains=query))
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+
+        libros = Libro.objects.filter(
+            Q(codigolibro__icontains=query) |
+            Q(titulo__icontains=query) |
+            Q(autor__icontains=query) |
+            Q(editorial__icontains=query)
+        )
     else:
         libros = Libro.objects.all()
 
     return render(request, "libros.html", context={"current_tab": "libro", "libros": libros})
 
+
 def agregar_libros(request):
     if request.method == 'POST':
-        fechapubl_str = request.POST.get('fechapubl', '')
-        if fechapubl_str:
-            try:
+        try:
+            fechapubl_str = request.POST.get('fechapubl', '')
+            if fechapubl_str:
                 fechapubl = int(fechapubl_str)
-            except ValueError:
-                raise ValidationError('Invalid integer format for fechapublicacion. Please enter a valid integer.')
-        else:
-            fechapubl = None
+            else:
+                fechapubl = None
 
-        libro_item = Libro(
-            titulo=request.POST['titulo'],
-            autor=request.POST['autor'],
-            editorial=request.POST['editorial'],
-            numerotomo=request.POST['numtomo'],
-            dewy=request.POST['ubicacion'],  # Ahora 'dewy' en lugar de 'ubicacion'
-            publicodirigido=request.POST['publico'],
-            fechapublicacion=fechapubl,
-            caracteristicasespeciales=request.POST['caracteristicas'],
-        )
-        libro_item.save()
-        return redirect('/libro')
+            libro_item = Libro(
+                titulo=request.POST.get('titulo', ''),
+                autor=request.POST.get('autor', ''),
+                editorial=request.POST.get('editorial', ''),
+                numerotomo=request.POST.get('numtomo', ''),
+                dewy=request.POST.get('ubicacion', ''),  # Ahora 'dewy' en lugar de 'ubicacion'
+                publicodirigido=request.POST.get('publico', ''),
+                fechapublicacion=fechapubl,
+                caracteristicasespeciales=request.POST.get('caracteristicas', ''),
+                ilustrador=request.POST.get('ilustrador','')
+            )
+            libro_item.full_clean()  # Realiza todas las validaciones del modelo
+            libro_item.save()
+            return redirect('/libro')
+        
+        except ValidationError as e:
+            # Si se produce una excepción de validación, mostrar un mensaje de error
+            return render(request, 'error.html', {'mensaje': '; '.join(e.messages)})
+
+    return redirect('/libro')
 
 def agregar_copia(request):
     if request.method == 'POST':
@@ -192,7 +229,7 @@ def agregar_copia(request):
             return redirect('/libro')
         else:
             # Si el libro no existe, puedes mostrar un mensaje de error o redireccionar a una página de error
-           return redirect('/libro')
+           return render(request, 'error.html', {'mensaje': 'El codigo de libro introducido no corresoponde an ningun libro en la base favor de verificarlo'})
     else:
         # Si la solicitud no es POST, probablemente deberías manejarla de alguna manera
         # Por ejemplo, podrías mostrar un mensaje de error o redirigir a una página de error
@@ -210,19 +247,36 @@ def editar_libro(request, codigolibro):
         # Procesa el formulario de edición aquí
         libro_obj.titulo = request.POST['titulo']
         libro_obj.autor = request.POST['autor']
-        libro_obj.ilustrador = request.POST['ilustrador']
         libro_obj.editorial = request.POST['editorial']
-        libro_obj.numerotomo = request.POST['numerotomo']
-        libro_obj.caracteristicasespeciales = request.POST['caracteristicasespeciales']
-        libro_obj.dewy = request.POST['ubicacionbiblio']
-        libro_obj.publicodirigido = request.POST['publicodirigido']
-        try:
-            fechapublicacion = int(request.POST['fechapublicacion'])
-            libro_obj.fechapublicacion = fechapublicacion
-        except ValueError:
-            return HttpResponse("Invalid integer format for fechapublicacion. Please enter a valid integer.")
+
+        # Los campos no obligatorios se manejan si están presentes en la solicitud POST
+        libro_obj.ilustrador = request.POST.get('ilustrador', None)
+        libro_obj.numerotomo = request.POST.get('numerotomo', None)
+        libro_obj.caracteristicasespeciales = request.POST.get('caracteristicasespeciales', None)
+        libro_obj.dewy = request.POST.get('ubicacionbiblio', None)
+        libro_obj.publicodirigido = request.POST.get('publicodirigido', None)
+
+        # Obtener el valor de fechapublicacion del formulario
+        fechapublicacion = request.POST.get('fechapublicacion')
+
+        # Si el valor obtenido es None o vacío, establecer fechapublicacion como None
+        if not fechapublicacion:
+            libro_obj.fechapublicacion = None
+        else:
+            try:
+                # Intentar convertir el valor a un entero
+                fechapublicacion = int(fechapublicacion)
+                libro_obj.fechapublicacion = fechapublicacion
+            except ValueError:
+                return HttpResponse("Invalid integer format for fechapublicacion. Please enter a valid integer.")
+
         libro_obj.save()
         return redirect('/libro')
+
+    # Si la solicitud no es POST, renderiza el formulario de edición
+    return render(request, 'editar_libro.html', {'libro': libro_obj})
+
+
 
 def eliminar_libro(request, codigolibro):
     libro_obj = get_object_or_404(Libro, codigolibro=codigolibro)
@@ -236,7 +290,7 @@ def cargar_desde_excel_libro(request):
         if 'excel_file' in request.FILES:
             excel_file = request.FILES['excel_file']
             df = pd.read_excel(excel_file)
-            required_columns = ['codigolibro', 'titulo', 'autor', 'editorial']
+            required_columns = ['titulo', 'autor', 'editorial']
             missing_columns = [col for col in required_columns if col not in df.columns]
             if missing_columns:
                 missing_columns_str = ', '.join(missing_columns)
@@ -244,9 +298,13 @@ def cargar_desde_excel_libro(request):
             for index, row in df.iterrows():
                 if any(pd.isna(row[col]) for col in required_columns):
                     return HttpResponse("Los campos obligatorios no pueden estar vacíos.")
-                fechapublicacion = row.get('fechapublicacion', datetime.now().date())
+                if 'codigolibro' in df.columns and pd.notna(row['codigolibro']):
+                    codigolibro = row['codigolibro']
+                else:
+                    codigolibro = None
+                fechapublicacion = int(row.get('fechapublicacion', 0))  # Cambiar a entero
                 libro_item = Libro(
-                    codigolibro=row['codigolibro'],
+                    codigolibro=codigolibro,
                     titulo=row['titulo'],
                     autor=row['autor'],
                     editorial=row['editorial'],
@@ -254,7 +312,7 @@ def cargar_desde_excel_libro(request):
                     fechapublicacion=fechapublicacion,
                     numerotomo=row.get('tomo', ''),
                     caracteristicasespeciales=row.get('caracteristicas', ''),
-                    dewy=row.get('ubicacionbiblio', ''),  # Ajustar según sea necesario
+                    dewy=row.get('ubicacionbiblio', ''),
                     publicodirigido=row.get('publico', ''),
                 )
                 libro_item.save()
@@ -288,3 +346,39 @@ def busqeda_detalle(request, codigolibro):
     libro_obj = get_object_or_404(Libro, codigolibro=codigolibro)
     
     return render(request, 'busquedadetalle.html', {'libro': libro_obj})
+
+def cargar_copias_desde_excel(request):
+    if request.method == 'POST':
+        if 'excel_file' in request.FILES:
+            excel_file = request.FILES['excel_file']
+            df = pd.read_excel(excel_file)
+
+            required_columns = ['codigolibro']
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            if missing_columns:
+                missing_columns_str = ', '.join(missing_columns)
+                return HttpResponse(f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}.")
+
+            for index, row in df.iterrows():
+                codigolibro = row['codigolibro']
+
+                if 'clavecopia' in df.columns and not pd.isna(row['clavecopia']):
+                    clavecopia = row['clavecopia']
+                else:
+                    clavecopia = None  # Asignar None para que se autoasigne la clave de copia por Django
+
+                libro_existente = Libro.objects.filter(codigolibro=codigolibro).first()
+                if libro_existente:
+                    copia_item = Copia(
+                        clavecopia=clavecopia,
+                        codigolibro=libro_existente,
+                        disponible=True,  # Asignar True por defecto
+                        clavealumno=None,  # Asignar None por defecto
+                    )
+                    copia_item.save()
+                else:
+                    return HttpResponse(f"No se encontró el libro con la clave: {codigolibro}")
+
+            return redirect('/copia')  # Redirigir a la página de copias después de cargar las copias
+
+    return render(request, 'tu_template_excel.html')
