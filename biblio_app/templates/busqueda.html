@@ -14,32 +14,43 @@
             </div>
         </nav>
         <div class="row mt-4">
-            <p>{{libros|length}} libros registrados</p>
+            <h6> Para mostrar todos los libros despues de una busqueda realiza una busqueda sin contenido o apreta el boton de busqueda otra vez</h6>
+            <p>{{ copias|length }} copias registradas</p>
         </div>
         <div class="row mt-4">
             <div class="container" style="overflow-y:auto;">
                 <table class="table table-hover">
                     <thead>
-                        <th>Clave</th>
-                        <th>Titulo</th>
+                        <th>Codigo de Copia</th>
+                        <th>Titulo del Libro</th>
                         <th>Autor</th>
                         <th>Ilustrador</th>
                         <th>Editorial</th>
-                        <th>Ubicación</th>
+                        <th>Clasificacion Dewey</th>
                         <th>Disponible</th>
-                        <th>Mas información</th>
+                        <th>Mas Infromación</th>
+                        {% if user.is_authenticated %}
+                        <th>Eliminar Copia</th>
+                        {% endif %}
                     </thead>
                     <tbody>
-                        {% for libro in libros %}
+                        {% for copia in copias %}
                             <tr>
-                                <td>{{ libro.codigolibro }}</td>
-                                <td>{{ libro.titulo }}</td>
-                                <td>{{ libro.autor }}</td>
-                                <td>{{ libro.ilustrador }}</td>
-                                <td>{{ libro.editorial }}</td>
-                                <td>{{ libro.ubicacionbiblio }}</td>
-                                <td>{% if libro.disponible %}Disponible{% else %}No Disponible{% endif %}</td>
-                                <td><a href="{% url 'busqueda_detalle' codigolibro=libro.codigolibro %}" class="btn btn-success"><i class="bi bi-pencil"></i>+</a></td>
+                                <td>{{ copia.clavecopia|stringformat:"06d" }}</td>
+                                <td>{{ copia.codigolibro.titulo }}</td>
+                                <td>{{ copia.codigolibro.autor }}</td>
+                                <td>{{ copia.codigolibro.ilustrador }}</td>
+                                <td>{{ copia.codigolibro.editorial }}</td>
+                                <td>{{ copia.codigolibro.dewy }}</td>
+                                <td>{% if copia.disponible %}Disponible{% else %}{{ copia.clavealumno }}{% endif %}</td>
+                                <td style="text-align: center;">
+                                    <a href="{% url 'busqueda_detalle' clavecopia=copia.clavecopia %}" class="btn btn-success"><i class="bi bi-pencil"></i>+</a>
+                                </td>   
+                                {% if user.is_authenticated %}
+                                <td><button class="btn btn-danger" onclick="borrarcopia('{{ copia.clavecopia }}')">
+                                    <i class="bi bi-trash"></i> eliminar<!-- Ícono de papelera -->
+                                </button></td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -48,4 +59,28 @@
         </div>
     </div>
 </div>
+<script>
+    function borrarcopia(pk) {
+        if (confirm("¿Estás seguro de que quieres borrar a esta copia esta accion es permanente y no se puede deshacer? ")) {
+            // Petición AJAX para eliminar el registro
+            $.ajax({
+                type: 'POST',
+                url: '/copia/eliminar/' + pk +'/',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function () {
+                    // Recargar la página o actualizar la tabla después de borrar
+                    location.reload();
+                },
+                error: function () {
+                    // Manejar errores si es necesario
+                    location.reload();
+                }
+            });
+        } else {
+            // Si el usuario cancela, no hagas nada
+        }
+    }
+</script>
 {% endblock %}

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
- {% extends "index.html" %}
- {% load static %}
+{% extends "index.html" %}
+{% load static %}
 
- {% block main_content %}
+{% block main_content %}
 <div class="container-flex text-center justify-content-center allign-items-center" style="padding-top: 20px;">
     <div class="row justify-content-center align-middle" style="margin-top: 10px; height:60px;">
     <div class="col-md-4 text-center">
@@ -15,6 +15,7 @@
 </div>
 <div class="row">
     <div class="col-md-4">
+        <h6>Para agregar a un alumno de Pf o preprimaria ingresa su año como 0</h6>
         <div class="container" style="overflow-y: auto; height: 600px;">
             <form class="d-flex" action="/alumno/agregar" method="post">
                 {%csrf_token%}
@@ -28,11 +29,7 @@
                         <td><input type="text" class="form-control" name="apellido"></td>
                     </tr>
                     <tr>
-                        <td style="text-align:left; vertical-align:middle; padding-left:15px;">Clave estudiante : </td>
-                        <td><input type="text" class="form-control" name="clave"></td>
-                    </tr>
-                    <tr>
-                        <td style="text-align:left; vertical-align:middle; padding-left:15px;">Grupo : </td>
+                        <td style="text-align:left; vertical-align:middle; padding-left:15px;">Año : </td>
                         <td><input type="text" class="form-control" name="grupo"></td>
                     </tr>
                     {% if user.is_authenticated %}
@@ -62,6 +59,8 @@
                 </form>
             </div>
             </nav>
+            <h6> Para mostrar todos los alumnos de preprimaria solo busca "0"</h6>
+            <h6> Para mostrar todos los alumnos despues de una busqueda realiza una busqueda sin contenido o apreta el boton de alumnos otra vez</h6>
             <div class="row" style="margin-top: 20 px;">
                 <p>{{alumnos|length}} alumnos registrados</p>
             </div>
@@ -73,31 +72,29 @@
     <td>Clave</td>
     <td>Nombre</td>
     <td>Apellido</td>
-    <td>Grupo</td>
+    <td>Año</td>
     <td>Acciones</td> <!-- Nueva columna para botones -->
 </thead>
 
 <tbody>
     {% for alumno in alumnos %}
         <tr>
-            <td>
-                {% if user.is_authenticated %}
-                <a href="{% url 'alumno_detalle' pk=alumno.pk %}" class="btn btn-success">
-                    {{ alumno.clave }}
-                </a>
-                {% else %}
-                {{ alumno.clave }}
-                {% endif %}
-            </td>
+            <td>{{ alumno.clave|stringformat:"05d" }}</td>
             <td>{{ alumno.nombre }}</td>
             <td>{{ alumno.apellido }}</td>
-            <td>{{ alumno.grupo }}</td>
+            <td>
+                {% if alumno.grupo == 0 %}
+                    PF
+                {% else %}
+                    {{ alumno.grupo }}
+                {% endif %}
+            </td>
             <td>
                 {% if user.is_authenticated %}
-                <a href="{% url 'editar_alumno' pk=alumno.pk %}" class="btn btn-warning">
+                <a href="{% url 'editar_alumno' pk=alumno.clave %}" class="btn btn-warning">
                     <i class="bi bi-pencil"></i> editar<!-- Ícono de lápiz -->
                 </a>
-                <button class="btn btn-danger" onclick="borrarAlumno('{{ alumno.pk }}')">
+                <button class="btn btn-danger" onclick="borrarAlumno('{{ alumno.clave }}')">
                     <i class="bi bi-trash"></i> eliminar<!-- Ícono de papelera -->
                 </button>
                 {% endif %}
@@ -115,7 +112,7 @@
 </div>
 <script>
     function confirmarBorrarAlumnos() {
-        if (confirm("¿Estás seguro de que quieres borrar a todos los alumnos?")) {
+        if (confirm("¿Estás seguro de que quieres realizar el proceso de fin de año este aumentara el año de todos los estudiantes y borrara a todos los estudiante que se encuentren en 6to en este momento?")) {
             // Si el usuario confirma, redirige al servidor para borrar los datos
             window.location.href = "/alumno/borrar_todos";
         } else {
@@ -126,7 +123,7 @@
 </script>
 <script>
     function borrarAlumno(pk) {
-        if (confirm("¿Estás seguro de que quieres borrar a este alumno?")) {
+        if (confirm("¿Estás seguro de que quieres borrar a este alumno esta accion es permanente y no se puede deshacer? ")) {
             // Petición AJAX para eliminar el registro
             $.ajax({
                 type: 'POST',
@@ -149,4 +146,4 @@
     }
 </script>
 
- {% endblock %}
+{% endblock %}
