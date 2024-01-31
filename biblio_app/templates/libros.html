@@ -76,11 +76,18 @@
                     </tr>
                 </table>
             </form>
+            <h6>Agregar Libros desde Excel</h6>
             <form class="d-flex" action="/libro/cargar_excel" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" name="excel_file">
                 <button class="btn btn-primary" type="submit" style="align-self: center;"> Cargar desde Excel</button>
-            </form>            
+            </form>   
+            <h6>Agregar Copias desde Excel</h6>         
+            <form class="d-flex" action="/libro/cargar_excel_copia" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="excel_file">
+                <button class="btn btn-primary" type="submit" style="align-self: center;"> Cargar desde Excel</button>
+            </form> 
             <button class="btn btn-danger" type="button" onclick="confirmarBorrarlibros()"> Borrar todos los libros</button>
             {% endif %}
         </div>
@@ -96,6 +103,7 @@
                 </div>
             </nav>
             <div class="row" style="margin-top: 20 px;">
+                <h6> Para mostrar todos los libros despues de una busqueda realiza una busqueda sin contenido o apreta el boton de libros otra vez</h6>
                 <p>{{ libros|length }} libros registrados</p>
             </div>
             <div class="row" style="margin-top: 20px;">
@@ -138,7 +146,7 @@
 </div>
 <script>
     function confirmarBorrarlibros() {
-        if (confirm("¿Estás seguro de que quieres borrar a todos los libros?")) {
+        if (confirm("¿Estás seguro de que quieres borrar a todos los libros esta accion borrara todos los libros que se encuentran registrados actualmente esta accion es permanente y no se puede deshacer?")) {
             // Si el usuario confirma, redirige al servidor para borrar los datos
             window.location.href = "/libro/borrar_todos";
         } else {

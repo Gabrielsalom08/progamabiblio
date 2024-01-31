@@ -302,18 +302,18 @@ def cargar_desde_excel_libro(request):
                     codigolibro = row['codigolibro']
                 else:
                     codigolibro = None
-                fechapublicacion = int(row.get('fechapublicacion', 0))  # Cambiar a entero
+                fechapublicacion = int(row.get('fechapublicacion', None))  # Cambiar a entero
                 libro_item = Libro(
                     codigolibro=codigolibro,
                     titulo=row['titulo'],
                     autor=row['autor'],
                     editorial=row['editorial'],
-                    ilustrador=row.get('ilustrador', ''),
+                    ilustrador=row.get('ilustrador', None),
                     fechapublicacion=fechapublicacion,
-                    numerotomo=row.get('tomo', ''),
-                    caracteristicasespeciales=row.get('caracteristicas', ''),
-                    dewy=row.get('ubicacionbiblio', ''),
-                    publicodirigido=row.get('publico', ''),
+                    numerotomo=row.get('tomo', None),
+                    caracteristicasespeciales=row.get('caracteristicas', None),
+                    dewy=row.get('ubicacionbiblio', None),
+                    publicodirigido=row.get('publico', None),
                 )
                 libro_item.save()
             return redirect('/libro')
@@ -332,20 +332,27 @@ def eliminar_libros_por_titulo(request):
             Libro.objects.filter(titulo=titulo).delete()
     return redirect('/libro')
     
+
 def busqueda_pest(request):
     query = request.GET.get('q')
     if query:
-        libros = Libro.objects.filter(Q(codigolibro__icontains=query) | Q(titulo__icontains=query)|Q(autor__icontains=query) |Q(editorial__icontains=query)|Q(ilustrador__icontains=query) )
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+    if query:
+        copias = Copia.objects.filter(Q(clavecopia__icontains=query) | Q(codigolibro__titulo__icontains=query) | Q(codigolibro__autor__icontains=query) | Q(codigolibro__editorial__icontains=query) | Q(codigolibro__ilustrador__icontains=query))
     else:
-        # Si no hay búsqueda, muestra todos los libros
-        libros = Libro.objects.all()
+        # Si no hay búsqueda, muestra todas las copias
+        copias = Copia.objects.all()
 
-    return render(request,"busqueda.html",context={"current_tab": "busqueda", "libros": libros})
-def busqeda_detalle(request, codigolibro):
+    return render(request,"busqueda.html",context={"current_tab": "busqueda", "copias": copias})
+
+def busqeda_detalle(request, clavecopia):
     # Usamos get_object_or_404 para obtener el objeto alumno o retornar un error 404 si no se encuentra
-    libro_obj = get_object_or_404(Libro, codigolibro=codigolibro)
+    copia_obj = get_object_or_404(Copia, clavecopia=clavecopia)
     
-    return render(request, 'busquedadetalle.html', {'libro': libro_obj})
+    return render(request, 'busquedadetalle.html', {'copia': copia_obj})
 
 def cargar_copias_desde_excel(request):
     if request.method == 'POST':
@@ -379,6 +386,16 @@ def cargar_copias_desde_excel(request):
                 else:
                     return HttpResponse(f"No se encontró el libro con la clave: {codigolibro}")
 
-            return redirect('/copia')  # Redirigir a la página de copias después de cargar las copias
+            return redirect('/libro')  # Redirigir a la página de copias después de cargar las copias
 
     return render(request, 'tu_template_excel.html')
+
+def eliminar_copia(request, pk):
+    copia_obj = get_object_or_404(Copia, clavecopia=pk)
+    print(copia_obj)
+
+    if request.method == 'POST':
+        copia_obj.delete()
+        return redirect('/busqueda')
+
+    return redirect('/busqueda')

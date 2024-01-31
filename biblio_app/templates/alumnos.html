@@ -112,7 +112,7 @@
 </div>
 <script>
     function confirmarBorrarAlumnos() {
-        if (confirm("¿Estás seguro de que quieres borrar a todos los alumnos?")) {
+        if (confirm("¿Estás seguro de que quieres realizar el proceso de fin de año este aumentara el año de todos los estudiantes y borrara a todos los estudiante que se encuentren en 6to en este momento?")) {
             // Si el usuario confirma, redirige al servidor para borrar los datos
             window.location.href = "/alumno/borrar_todos";
         } else {
@@ -123,7 +123,7 @@
 </script>
 <script>
     function borrarAlumno(pk) {
-        if (confirm("¿Estás seguro de que quieres borrar a este alumno? "+ pk)) {
+        if (confirm("¿Estás seguro de que quieres borrar a este alumno esta accion es permanente y no se puede deshacer? ")) {
             // Petición AJAX para eliminar el registro
             $.ajax({
                 type: 'POST',

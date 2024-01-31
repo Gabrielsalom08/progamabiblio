@@ -25,19 +25,30 @@
         margin-right: 10px;
         font-weight: bold;
     }
+
+    /* Agregar un margen superior al contenido */
+    .content-container {
+        margin-top: 100px; /* Puedes ajustar este valor según tu preferencia */
+    }
 </style>
 
-<h2>Detalles del Libro</h2>
-<p>Título: {{ libro.titulo }}</p>
-<p>Autor: {{ libro.autor }}</p>
-<p>Ilustrador: {{ libro.ilustrador }}</p>
-<p>Fecha de Publicación: {{ libro.fechapublicacion }}</p>
-<p>Editorial: {{ libro.editorial }}</p>
-<p>Número de Tomo: {{ libro.numerotomo }}</p>
-<p>Características Especiales: {{ libro.caracteristicasespeciales }}</p>
-<p>Disponible: {% if libro.disponible %}Sí{% else %}No{% endif %}</p>
-<p>Ubicación en la Biblioteca: {{ libro.ubicacionbiblio }}</p>
-<p>Público Dirigido: {{ libro.publicodirigido }}</p>
+<div class="content-container">
+    <p>Título del Libro: {{ copia.codigolibro.titulo }}</p>
+    <p>Autor: {{ copia.codigolibro.autor }}</p>
+    <p>Ilustrador: {{ copia.codigolibro.ilustrador }}</p>
+    <p>Fecha de Publicación: {{ copia.codigolibro.fechapublicacion }}</p>
+    <p>Editorial: {{ copia.codigolibro.editorial }}</p>
+    <p>Número de Tomo: {{ copia.codigolibro.numerotomo }}</p>
+    <p>Características Especiales: {{ copia.codigolibro.caracteristicasespeciales }}</p>
+    <p>Clasificación Dewey: {{ copia.codigolibro.dewy }}</p>
+    <p>Publico Dirigido: {{ copia.codigolibro.publicodirigido }}</p>
+    <p>Disponible: {% if copia.disponible %}Sí{% else %}No{% endif %}</p>
+    {% if not copia.disponible %}
+    <p>Clave del Alumno: {{ copia.clavealumno }}</p>
+    <p>Nombre del Alumno: {{ copia.clavealumno.nombre }}</p>
+    <p>Apellido del Alumno: {{ copia.clavealumno.apellido }}</p>
+    {% endif %}
+</div>
 
 <a href="/busqueda">Regresar</a>
 {% endblock %}
