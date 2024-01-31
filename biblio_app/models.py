@@ -29,6 +29,25 @@ class Libro(models.Model):
     def __str__(self):
         return f"{self.codigolibro} - {self.titulo}"  # Cambio en la representación como cadena
 
+class Prestamo(models.Model):
+    clave_alumno = models.ForeignKey('Alumno', on_delete=models.DO_NOTHING)  # Eliminado on_delete=models.CASCADE
+    clave_copia = models.ForeignKey('Copia', on_delete=models.DO_NOTHING)  # Eliminado on_delete=models.CASCADE
+    activo = models.BooleanField(default=True)
+    regreso = models.DateField(null=True)  # Campo que acepta fecha (día, mes y año)
+    fecha_regreso = models.DateField(null=True,blank=True)  # Campo que acepta fecha (día, mes y año)
+
+    def __str__(self):
+        return f"Prestamo de {self.clave_copia} a {self.clave_alumno}"
+
+class Multa(models.Model):
+    monto = models.FloatField()  # Campo de tipo double
+    alumno = models.ForeignKey('Alumno', on_delete=models.DO_NOTHING, null=True)  # Campo de referencia a Alumno
+    prestamo = models.ForeignKey('Prestamo', on_delete=models.DO_NOTHING, null=True)  # Campo de referencia a Prestamo
+    pagado = models.BooleanField(default=False)  # Campo booleano (True/False)
+
+    def __str__(self):
+        return f"Multa de {self.monto} para {self.alumno}"
+
 class Copia(models.Model):
     clavecopia = models.AutoField(primary_key=True)  # Autogenerar un entero para la clave de copia
     codigolibro = models.ForeignKey(Libro, on_delete=models.CASCADE)  # Llave foránea de Libro
