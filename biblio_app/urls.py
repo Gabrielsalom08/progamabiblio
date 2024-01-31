@@ -22,7 +22,9 @@ urlpatterns = [
     path('', inicio),
     path('inicio', inicio),  # Asegúrate de agregar la barra al final para ser consistente
     path('libro', libros_pest),
+    path('credencial', credenciales),
     path('busqueda', busqueda_pest),
+    path('nuevoprestamo', nuevo_prestamo),
     path('prestamo', prestamos),
     path('retorno', retornos),
     path('multa', multas),

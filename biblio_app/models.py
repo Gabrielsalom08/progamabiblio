@@ -30,8 +30,8 @@ class Libro(models.Model):
         return f"{self.codigolibro} - {self.titulo}"  # Cambio en la representación como cadena
 
 class Prestamo(models.Model):
-    clave_alumno = models.ForeignKey('Alumno', on_delete=models.DO_NOTHING)  # Eliminado on_delete=models.CASCADE
-    clave_copia = models.ForeignKey('Copia', on_delete=models.DO_NOTHING)  # Eliminado on_delete=models.CASCADE
+    clave_alumno = models.ForeignKey('Alumno', on_delete=models.DO_NOTHING)  
+    clave_copia = models.ForeignKey('Copia', on_delete=models.DO_NOTHING)  
     activo = models.BooleanField(default=True)
     regreso = models.DateField(null=True)  # Campo que acepta fecha (día, mes y año)
     fecha_regreso = models.DateField(null=True,blank=True)  # Campo que acepta fecha (día, mes y año)
