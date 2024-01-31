@@ -42,7 +42,7 @@
                                 <td>{{ copia.codigolibro.ilustrador }}</td>
                                 <td>{{ copia.codigolibro.editorial }}</td>
                                 <td>{{ copia.codigolibro.dewy }}</td>
-                                <td>{% if copia.disponible %}Disponible{% else %}{{ copia.clavealumno }}{% endif %}</td>
+                                <td>{% if copia.disponible %}Disponible{% else %} No - {{ copia.clavealumno.clave|stringformat:"05d" }}{% endif %}</td>
                                 <td style="text-align: center;">
                                     <a href="{% url 'busqueda_detalle' clavecopia=copia.clavecopia %}" class="btn btn-success"><i class="bi bi-pencil"></i>+</a>
                                 </td>   

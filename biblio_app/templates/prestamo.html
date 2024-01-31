@@ -1,8 +1,58 @@
 <!DOCTYPE html>
- {% extends "index.html" %}
- {% load static %}
+{% extends "index.html" %}
+{% load static %}
 
- {% block main_content %}
-
-
- {% endblock %}
+{% block main_content %}
+<div class="container-fluid justify-content-center" style="margin-left: 30px; margin-right: 30px;">
+  <div class="row">
+    <div class="col-md-8">
+      <h2>Buscar Préstamo</h2>
+      <form method="get" action="/prestamo" class="mb-3">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Buscar por clave de alumno o clave de libro" name="q">
+          <button type="submit" class="btn btn-outline-primary">Buscar</button>
+        </div>
+      </form>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Clave de Alumno</th>
+            <th>Nombre Alumno</th>
+            <th>Clave de Libro</th>
+            <th>Titulo libro</th>
+            <th>Fecha limite</th>
+            <th>Fecha regresado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for prestamo in prestamo %}
+          <tr>
+            <td>{{ prestamo.clave_alumno.clave|stringformat:"05d" }}</td>
+            <td>{{ prestamo.clave_alumno.nombre }} {{ prestamo.clave_alumno.apellido }}</td>
+            <td>{{ prestamo.clave_copia.clavecopia|stringformat:"06d" }}</td>
+            <td>{{ prestamo.clave_copia.codigolibro.titulo }}</td>
+            <td>{{ prestamo.regreso }}</td>
+            <td>{% if prestamo.fecha_regreso  %} {{ prestamo.fecha_regreso }} {%endif%}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-4" style="margin-top: 30px;">
+      <h2>Generar Nuevo Préstamo</h2>
+      <form method="post" action="/nuevoprestamo">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="clave_alumno" class="form-label">Clave del Alumno</label>
+          <input type="text" class="form-control" id="clave_alumno" name="clave_alumno">
+        </div>
+        <div class="mb-3">
+          <label for="clave_copia" class="form-label">Clave de la Copia</label>
+          <input type="text" class="form-control" id="clave_copia" name="clave_copia">
+        </div>
+        <button type="submit" class="btn btn-primary">Generar Préstamo</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

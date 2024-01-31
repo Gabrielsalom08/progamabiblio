@@ -8,7 +8,7 @@ from .models import *
 from django.db.models import Q
 import pandas as pd
 from django.shortcuts import render, get_object_or_404, redirect
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 
@@ -18,13 +18,33 @@ from django.http import JsonResponse
 def inicio(request):
     return render(request,"inicio.html",context={"current_tab": "inicio"})
 def prestamos(request):
-    return render(request,"prestamo.html",context={"current_tab": "prestamo"})
+    query = request.GET.get('q')
+    if query:
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+        
+        # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
+        prestamo = Prestamo.objects.filter(
+            Q(clave_alumno__icontains=query) |
+            Q(clave_copia__icontains=query)
+        ).distinct().order_by('-pk')
+    else:
+        # Si no hay búsqueda, mostrar todos los prestamos
+        prestamo = Prestamo.objects.all().order_by('-pk')
+
+    # Devolver una respuesta con la lista de prestamos
+    return render(request,"prestamo.html",context={"current_tab": "prestamo", "prestamo": prestamo})
+
 def retornos(request):
     return render(request,"retorno.html",context={"current_tab": "retorno"})
 def multas(request):
     return render(request,"multas.html",context={"current_tab": "multa"})
 def etiquetas(request):
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta"})
+def credenciales(request):
+    return render(request,"credencial.html",context={"current_tab": "credecial"})
 
 def login_view(request):
     if request.method == 'POST':
@@ -399,3 +419,47 @@ def eliminar_copia(request, pk):
         return redirect('/busqueda')
 
     return redirect('/busqueda')
+
+def nuevo_prestamo(request):
+    if request.method == 'POST':
+        clave_alumno = request.POST.get('clave_alumno')
+        clave_copia = request.POST.get('clave_copia')
+
+        if not (clave_alumno and clave_copia):
+            return render(request, 'error.html', {'mensaje': 'Por favor, completa todos los campos obligatorios.'})
+        
+        if clave_alumno.isdigit():
+        # Eliminar los ceros a la izquierda en el caso de que existan
+            clave_alumno = str(int(clave_alumno))
+        if clave_copia.isdigit():
+        # Eliminar los ceros a la izquierda en el caso de que existan
+            clave_copia = str(int(clave_copia))
+        try:
+            alumno = Alumno.objects.get(clave=clave_alumno)
+            copia = Copia.objects.get( clavecopia=clave_copia)
+
+            if not alumno.sacalibro and copia.disponible:
+                prestamo = Prestamo.objects.create(
+                    clave_alumno=alumno,
+                    clave_copia=copia,
+                    activo=True,
+                    regreso=datetime.now() + timedelta(days=7),
+                    fecha_regreso=None
+                )
+
+                # Modificar disponibilidad de copia y clave de alumno en la copia
+                copia.disponible = False
+                copia.clavealumno = alumno
+                copia.save()
+
+                # Actualizar estado de sacalibro en alumno
+                alumno.sacalibro = True
+                alumno.save()
+
+                return redirect('/prestamo')
+            else:
+                return render(request, 'error.html', {'mensaje': 'El alumno ya tiene un libro sacado o la copia no está disponible.'})
+        except (Alumno.DoesNotExist, Copia.DoesNotExist):
+            return render(request, 'error.html', {'mensaje': 'La clave de alumno o de copia no son válidas.'})
+
+    return render(request, 'error.html', {'mensaje': 'El método de solicitud no es válido.'})

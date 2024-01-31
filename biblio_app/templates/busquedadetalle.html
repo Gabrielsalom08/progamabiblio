@@ -44,9 +44,8 @@
     <p>Publico Dirigido: {{ copia.codigolibro.publicodirigido }}</p>
     <p>Disponible: {% if copia.disponible %}Sí{% else %}No{% endif %}</p>
     {% if not copia.disponible %}
-    <p>Clave del Alumno: {{ copia.clavealumno }}</p>
-    <p>Nombre del Alumno: {{ copia.clavealumno.nombre }}</p>
-    <p>Apellido del Alumno: {{ copia.clavealumno.apellido }}</p>
+    <p>Clave del Alumno: {{ copia.clavealumno.clave|stringformat:"05d" }}</p>
+    <p>Nombre del Alumno: {{ copia.clavealumno.nombre }} {{ copia.clavealumno.apellido }}</p>
     {% endif %}
 </div>
 
