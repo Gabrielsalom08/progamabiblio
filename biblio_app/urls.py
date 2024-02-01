@@ -49,6 +49,9 @@ urlpatterns = [
     path('libro/cargar_excel', cargar_desde_excel_libro, name='cargar_desde_excel_libros'),
     path('libro/borrar_todos', borrar_todos_los_libros, name='borrar_todos_los_libros'),
     path('libro/eliminar_por_titulo', eliminar_libros_por_titulo, name='eliminar_libros_por_titulo'),
-
+    path('prestamo/completar/<int:pk>/', completar_prestamo, name='completar_prestamo'),
+    path('prestamo/ampliar/<int:pk>/', ampliar_prestamo, name='ampliar_prestamo'),
 ]
+
+
 
