@@ -3,6 +3,111 @@
  {% load static %}
 
  {% block main_content %}
-
-
+ <div class="col-md-8 mx-auto my-4">
+    <div class="row">
+        <nav class="navbar bg-body-light">
+            <div class="container-fluid justify-content-center align-items-center">
+                <form class="d-flex" role="search" action="busqueda" method="get">
+                    <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search" name="q" value="{{ request.GET.q }}">
+                    <button class="btn btn-outline-success" type="submit">Buscar</button>
+                </form>
+            </div>
+        </nav>
+        <div class="row mt-4">
+            <h6> Para mostrar todos los prestamos activos despues de una busqueda realiza una busqueda sin contenido o apreta el boton de retornos otra vez</h6>
+            <p>{{ prestamo|length }} prestamos activos</p>
+        </div>
+        <div class="row mt-4">
+            <div class="container" style="overflow-y:auto;">
+                <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Clave de Alumno</th>
+                        <th>Nombre Alumno</th>
+                        <th>Clave de Libro</th>
+                        <th>Titulo libro</th>
+                        <th>Fecha limite</th>
+                        {% if user.is_authenticated %}
+                        <th>Ampliar Prestamo</th>
+                        <th>Regresar libro</th>
+                        {% endif %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for prestamo in prestamo %}
+                      <tr>
+                        <td>{{ prestamo.clave_alumno.clave|stringformat:"05d" }}</td>
+                        <td>{{ prestamo.clave_alumno.nombre }} {{ prestamo.clave_alumno.apellido }}</td>
+                        <td>{{ prestamo.clave_copia.clavecopia|stringformat:"06d" }}</td>
+                        <td>{{ prestamo.clave_copia.codigolibro.titulo }}</td>
+                        <td>{{ prestamo.regreso }}</td>
+                        {% if user.is_authenticated %}
+                        <td>
+                            <a href="#" class="btn btn-primary" onclick="ampliarPrestamo('{{ prestamo.pk }}')">
+                                Ampliar Prestamo
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-success" onclick="completarPrestamo('{{ prestamo.pk }}')">
+                                Completar Prestamo
+                            </a>
+                        </td>
+                        {%endif%}
+                    </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function ampliarPrestamo(pk) {
+        if (confirm("¿Estás seguro de que quieres ampliar este préstamo?")) {
+            // Petición AJAX para ampliar el préstamo
+            $.ajax({
+                type: 'POST',
+                url: '/prestamo/ampliar/' + pk + '/',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function () {
+                    // Recargar la página o actualizar la tabla después de ampliar
+                    location.reload();
+                },
+                error: function () {
+                    // Manejar errores si es necesario
+          
+                    location.reload();
+                }
+            });
+        } else {
+            // Si el usuario cancela, no hagas nada
+        }
+    }
+</script>
+<script>
+    function completarPrestamo(pk) {
+        if (confirm("¿Estás seguro de que quieres completar este préstamo?")) {
+            // Petición AJAX para completar el préstamo
+            $.ajax({
+                type: 'POST',
+                url: '/prestamo/completar/' + pk + '/',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function () {
+                    // Recargar la página o actualizar la tabla después de completar
+                    location.reload();
+                },
+                error: function () {
+                    // Manejar errores si es necesario
+                    location.reload();
+                }
+            });
+        } else {
+            // Si el usuario cancela, no hagas nada
+        }
+    }
+</script>
  {% endblock %}

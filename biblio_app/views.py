@@ -11,6 +11,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
+from django.utils import timezone
 
 #register your models here
 
@@ -38,7 +39,26 @@ def prestamos(request):
     return render(request,"prestamo.html",context={"current_tab": "prestamo", "prestamo": prestamo})
 
 def retornos(request):
-    return render(request,"retorno.html",context={"current_tab": "retorno"})
+    query = request.GET.get('q')
+    if query:
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+        
+        # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
+        prestamo = Prestamo.objects.filter(
+            (Q(clave_alumno__icontains=query) |
+            Q(clave_copia__icontains=query)) &
+            Q(activo=True)
+        ).distinct()
+    else:
+        # Si no hay búsqueda, mostrar todos los préstamos activos
+        prestamo = Prestamo.objects.filter(activo=True)
+
+    # Devolver una respuesta con la lista de préstamos
+    return render(request,"retorno.html",context={"current_tab": "retorno", "prestamo": prestamo})
+
 def multas(request):
     return render(request,"multas.html",context={"current_tab": "multa"})
 def etiquetas(request):
@@ -145,7 +165,8 @@ def cargar_desde_excel(request):
 
         if missing_columns:
             missing_columns_str = ', '.join(missing_columns)
-            return HttpResponse(f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}.")
+            error_message = f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}."
+            return render(request, 'error.html', {'mensaje': error_message})
 
         for index, row in df.iterrows():
             if 'clave' in df.columns and not pd.isna(row['clave']):
@@ -159,7 +180,13 @@ def cargar_desde_excel(request):
                 apellido=row['apellido'],
                 grupo=row['grupo'],
             )
-            alumno_item.save()
+
+            try:
+                alumno_item.full_clean()  # Validar los datos del modelo
+                alumno_item.save()  # Guardar el objeto en la base de datos
+            except ValidationError as e:
+                error_message = '; '.join(e.messages)
+                return render(request, 'error.html', {'mensaje': error_message})
 
         return redirect('/alumno')
 
@@ -288,7 +315,8 @@ def editar_libro(request, codigolibro):
                 fechapublicacion = int(fechapublicacion)
                 libro_obj.fechapublicacion = fechapublicacion
             except ValueError:
-                return HttpResponse("Invalid integer format for fechapublicacion. Please enter a valid integer.")
+                error_message = 'Formato de fecha de publicación no válido. Por favor, ingresa un entero válido.'
+                return render(request, 'error.html', {'mensaje': error_message})
 
         libro_obj.save()
         return redirect('/libro')
@@ -310,19 +338,27 @@ def cargar_desde_excel_libro(request):
         if 'excel_file' in request.FILES:
             excel_file = request.FILES['excel_file']
             df = pd.read_excel(excel_file)
+
             required_columns = ['titulo', 'autor', 'editorial']
             missing_columns = [col for col in required_columns if col not in df.columns]
+
             if missing_columns:
                 missing_columns_str = ', '.join(missing_columns)
-                return HttpResponse(f"El archivo Excel no tiene las columnas obligatorias: {missing_columns_str}.")
+                error_message = f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}."
+                return render(request, 'error.html', {'mensaje': error_message})
+
             for index, row in df.iterrows():
                 if any(pd.isna(row[col]) for col in required_columns):
-                    return HttpResponse("Los campos obligatorios no pueden estar vacíos.")
+                    error_message = "Los campos obligatorios no pueden estar vacíos."
+                    return render(request, 'error.html', {'mensaje': error_message})
+
                 if 'codigolibro' in df.columns and pd.notna(row['codigolibro']):
                     codigolibro = row['codigolibro']
                 else:
                     codigolibro = None
+
                 fechapublicacion = int(row.get('fechapublicacion', None))  # Cambiar a entero
+
                 libro_item = Libro(
                     codigolibro=codigolibro,
                     titulo=row['titulo'],
@@ -335,15 +371,26 @@ def cargar_desde_excel_libro(request):
                     dewy=row.get('ubicacionbiblio', None),
                     publicodirigido=row.get('publico', None),
                 )
-                libro_item.save()
-            return redirect('/libro')
+
+                try:
+                    libro_item.full_clean()
+                    libro_item.save()
+                except ValidationError as e:
+                    error_message = '; '.join(e.messages)
+                    return render(request, 'error.html', {'mensaje': error_message})
+
+            return redirect('/libro')  # Redirigir a la página de libros después de cargar las copias
+
     return render(request, 'tu_template_excel.html')
 
 def borrar_todos_los_libros(request):
-    if request.method == 'GET':
+    try:
+        # Eliminar todos los libros
         Libro.objects.all().delete()
         return redirect('/libro')
-    return HttpResponse("Solicitud no válida.")
+    except Exception as e:
+        error_message = 'Se produjo un error al intentar borrar todos los libros. Por favor, inténtalo de nuevo.'
+        return render(request, 'error.html', {'mensaje': error_message})
 
 def eliminar_libros_por_titulo(request):
     if request.method == 'POST':
@@ -384,29 +431,36 @@ def cargar_copias_desde_excel(request):
             missing_columns = [col for col in required_columns if col not in df.columns]
             if missing_columns:
                 missing_columns_str = ', '.join(missing_columns)
-                return HttpResponse(f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}.")
+                error_message = f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}."
+                return render(request, 'error.html', {'mensaje': error_message})
 
-            for index, row in df.iterrows():
-                codigolibro = row['codigolibro']
+            try:
+                for index, row in df.iterrows():
+                    codigolibro = row['codigolibro']
 
-                if 'clavecopia' in df.columns and not pd.isna(row['clavecopia']):
-                    clavecopia = row['clavecopia']
-                else:
-                    clavecopia = None  # Asignar None para que se autoasigne la clave de copia por Django
+                    if 'clavecopia' in df.columns and not pd.isna(row['clavecopia']):
+                        clavecopia = row['clavecopia']
+                    else:
+                        clavecopia = None  # Asignar None para que se autoasigne la clave de copia por Django
 
-                libro_existente = Libro.objects.filter(codigolibro=codigolibro).first()
-                if libro_existente:
-                    copia_item = Copia(
-                        clavecopia=clavecopia,
-                        codigolibro=libro_existente,
-                        disponible=True,  # Asignar True por defecto
-                        clavealumno=None,  # Asignar None por defecto
-                    )
-                    copia_item.save()
-                else:
-                    return HttpResponse(f"No se encontró el libro con la clave: {codigolibro}")
+                    libro_existente = Libro.objects.filter(codigolibro=codigolibro).first()
+                    if libro_existente:
+                        copia_item = Copia(
+                            clavecopia=clavecopia,
+                            codigolibro=libro_existente,
+                            disponible=True,  # Asignar True por defecto
+                            clavealumno=None,  # Asignar None por defecto
+                        )
+                        copia_item.save()
+                    else:
+                        error_message = f"No se encontró el libro con la clave: {codigolibro}"
+                        return render(request, 'error.html', {'mensaje': error_message})
 
-            return redirect('/libro')  # Redirigir a la página de copias después de cargar las copias
+                return redirect('/libro')  # Redirigir a la página de copias después de cargar las copias
+
+            except Exception as e:
+                error_message = 'Se produjo un error al intentar cargar las copias desde el archivo Excel. Por favor, inténtalo de nuevo.'
+                return render(request, 'error.html', {'mensaje': error_message})
 
     return render(request, 'tu_template_excel.html')
 
@@ -426,17 +480,19 @@ def nuevo_prestamo(request):
         clave_copia = request.POST.get('clave_copia')
 
         if not (clave_alumno and clave_copia):
-            return render(request, 'error.html', {'mensaje': 'Por favor, completa todos los campos obligatorios.'})
-        
+            error_message = 'Por favor, completa todos los campos obligatorios.'
+            return render(request, 'error.html', {'mensaje': error_message})
+
         if clave_alumno.isdigit():
-        # Eliminar los ceros a la izquierda en el caso de que existan
+            # Eliminar los ceros a la izquierda en el caso de que existan
             clave_alumno = str(int(clave_alumno))
         if clave_copia.isdigit():
-        # Eliminar los ceros a la izquierda en el caso de que existan
+            # Eliminar los ceros a la izquierda en el caso de que existan
             clave_copia = str(int(clave_copia))
+
         try:
             alumno = Alumno.objects.get(clave=clave_alumno)
-            copia = Copia.objects.get( clavecopia=clave_copia)
+            copia = Copia.objects.get(clavecopia=clave_copia)
 
             if not alumno.sacalibro and copia.disponible:
                 prestamo = Prestamo.objects.create(
@@ -458,8 +514,33 @@ def nuevo_prestamo(request):
 
                 return redirect('/prestamo')
             else:
-                return render(request, 'error.html', {'mensaje': 'El alumno ya tiene un libro sacado o la copia no está disponible.'})
+                error_message = 'El alumno ya tiene un libro sacado o la copia no está disponible.'
+                return render(request, 'error.html', {'mensaje': error_message})
         except (Alumno.DoesNotExist, Copia.DoesNotExist):
-            return render(request, 'error.html', {'mensaje': 'La clave de alumno o de copia no son válidas.'})
+            error_message = 'La clave de alumno o de copia no son válidas.'
+            return render(request, 'error.html', {'mensaje': error_message})
 
-    return render(request, 'error.html', {'mensaje': 'El método de solicitud no es válido.'})
+    error_message = 'El método de solicitud no es válido.'
+    return render(request, 'error.html', {'mensaje': error_message})
+
+def completar_prestamo(request, pk):
+    prestamo = Prestamo.objects.get(pk=pk)
+    prestamo.activo = False
+    prestamo.fecha_regreso = timezone.now().date()
+    prestamo.save()
+
+    copia = prestamo.clave_copia
+    copia.disponible = True
+    copia.clavealumno = None
+    copia.save()
+
+    alumno = prestamo.clave_alumno
+    alumno.sacalibro = False
+    alumno.save()
+
+    return redirect('retorno')
+
+def ampliar_prestamo(request, pk):
+    prestamo = Prestamo.objects.get(pk=pk)
+    prestamo.regreso += timezone.timedelta(days=7)
+    prestamo.save()
