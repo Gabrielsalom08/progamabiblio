@@ -538,9 +538,10 @@ def completar_prestamo(request, pk):
     alumno.sacalibro = False
     alumno.save()
 
-    return redirect('retorno')
+    return redirect('/retorno')
 
 def ampliar_prestamo(request, pk):
     prestamo = Prestamo.objects.get(pk=pk)
     prestamo.regreso += timezone.timedelta(days=7)
     prestamo.save()
+    return redirect('/retorno')

@@ -83,4 +83,12 @@
         }
     }
 </script>
+<script>
+    $(document).ready( function () {
+        $('.table').DataTable({
+            "paging": true,
+            "pageLength": 10 // Mostrar solo 30 elementos por página
+        });
+    });
+</script>
 {% endblock %}
