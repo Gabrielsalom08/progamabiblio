@@ -103,6 +103,10 @@
                 </div>
             </nav>
             <div class="row" style="margin-top: 20 px;">
+                <form method="post" action="{% url 'exportar_excel_libros' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Exportar datos a Excel</button>
+                </form>
                 <h6> Para mostrar todos los libros despues de una busqueda realiza una busqueda sin contenido o apreta el boton de libros otra vez</h6>
                 <p>{{ libros|length }} libros registrados</p>
             </div>

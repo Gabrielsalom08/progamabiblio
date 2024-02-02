@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.utils import timezone
+from openpyxl import Workbook
 
 #register your models here
 
@@ -545,3 +546,120 @@ def ampliar_prestamo(request, pk):
     prestamo.regreso += timezone.timedelta(days=7)
     prestamo.save()
     return redirect('/retorno')
+
+def exportar_excel(request):
+    try:
+        # Crear un libro de trabajo de Excel
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Copias"
+
+        # Encabezados de la tabla
+        ws.append(["Codigo de Copia", "Codigo de Libro","Titulo del Libro", "Autor", "Ilustrador", "Editorial", "Clasificacion Dewey"])
+
+        # Obtener todas las copias
+        copias = Copia.objects.all()
+
+        # Datos de la tabla
+        for copia in copias:
+            ws.append([copia.clavecopia, copia.codigolibro.codigolibro ,copia.codigolibro.titulo, copia.codigolibro.autor, copia.codigolibro.ilustrador, copia.codigolibro.editorial, copia.codigolibro.dewy])
+
+        # Guardar el libro de trabajo como un archivo Excel
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="copias.xlsx"'
+        wb.save(response)
+        
+        # Retorna la respuesta
+        return response
+    
+    except Exception as e:
+        # Maneja la excepción imprimiendo el mensaje de error
+        print(f"Error en la función exportar_excel: {e}")
+        
+        # Puedes redirigir a una página de error o simplemente retornar un HttpResponse con un mensaje de error
+        return HttpResponse("Ocurrió un error al exportar los datos a Excel.")
+
+def exportar_excel_alumnos(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Alumnos"
+
+    # Encabezados de la tabla
+    ws.append(["Clave", "Nombre", "Apellido", "Año"])
+
+    # Obtener todos los alumnos
+    alumnos = Alumno.objects.all()
+
+    # Datos de la tabla
+    for alumno in alumnos:
+        ws.append([alumno.clave, alumno.nombre, alumno.apellido, alumno.grupo])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="alumnos.xlsx"'
+    wb.save(response)
+    
+    return response
+def exportar_excel_libros(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Libros"
+
+    # Encabezados de la tabla
+    ws.append(["Código de Libro", "Título", "Autor", "Ilustrador", "Fecha de Publicación", "Editorial", "Número de Tomo", "Características Especiales", "Clasificación Dewey", "Público Dirigido"])
+
+    # Obtener todos los libros
+    libros = Libro.objects.all()
+
+    # Datos de la tabla
+    for libro in libros:
+        ws.append([
+            libro.codigolibro,
+            libro.titulo,
+            libro.autor,
+            libro.ilustrador,
+            libro.fechapublicacion,
+            libro.editorial,
+            libro.numerotomo,
+            libro.caracteristicasespeciales,
+            libro.dewy,
+            libro.publicodirigido,
+        ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="libros.xlsx"'
+    wb.save(response)
+    
+    return response
+def exportar_excel_prestamos(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Préstamos"
+
+    # Encabezados de la tabla
+    ws.append(["Clave de Alumno", "Nombre Alumno", "Clave de Libro", "Título libro", "Fecha límite", "Fecha regresado"])
+
+    # Obtener todos los préstamos
+    prestamos = Prestamo.objects.all()
+
+    # Datos de la tabla
+    for prestamo in prestamos:
+        ws.append([
+            prestamo.clave_alumno.clave,
+            f"{prestamo.clave_alumno.nombre} {prestamo.clave_alumno.apellido}",
+            prestamo.clave_copia.clavecopia,
+            prestamo.clave_copia.codigolibro.titulo,
+            prestamo.regreso,
+            prestamo.fecha_regreso if prestamo.fecha_regreso else "",
+        ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="prestamos.xlsx"'
+    wb.save(response)
+    
+    return response

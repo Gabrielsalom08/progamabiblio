@@ -7,6 +7,10 @@
   <div class="row">
     <div class="col-md-8">
       <h2>HISTORIAL DE PRESTAMOS</h2>
+      <form method="post" action="{% url 'exportar_excel_prestamos' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Exportar datos a Excel</button>
+    </form>
       <h5>Buscar Préstamo</h5>
       <form method="get" action="/prestamo" class="mb-3">
         <div class="input-group">
