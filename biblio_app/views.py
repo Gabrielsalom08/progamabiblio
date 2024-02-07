@@ -16,6 +16,9 @@ from openpyxl import Workbook
 from django.http import JsonResponse
 from django.utils import timezone
 
+listacopias=[]
+listacredenciales=[]
+
 def get_server_time(request):
     # Obtiene la hora actual del servidor
     server_time = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -38,8 +41,8 @@ def prestamos(request):
         
         # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
         prestamo = Prestamo.objects.filter(
-            Q(clave_alumno__icontains=query) |
-            Q(clave_copia__icontains=query)
+            Q(clave_alumno__clave__icontains=query) |
+            Q(clave_copia__clave__icontains=query)
         ).distinct().order_by('-pk')
     else:
         # Si no hay búsqueda, mostrar todos los prestamos
@@ -58,8 +61,8 @@ def retornos(request):
         
         # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
         prestamo = Prestamo.objects.filter(
-            (Q(clave_alumno__icontains=query) |
-            Q(clave_copia__icontains=query)) &
+            Q(clave_alumno__clave__icontains=query) |
+            Q(clave_copia__clave__icontains=query) &
             Q(activo=True)
         ).distinct()
     else:
@@ -79,7 +82,7 @@ def multas(request):
         
         # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
         multas = Multa.objects.filter(
-            Q(clave_alumno__icontains=query) &
+            Q(clave_alumno_clave__icontains=query) &
             Q(pagado =False) 
         ).distinct()
     else:
@@ -90,7 +93,7 @@ def multas(request):
     return render(request,"multas.html",context={"current_tab": "multa", "multas": multas})
 
 def etiquetas(request):
-    return render(request,"etiqueta.html",context={"current_tab": "etiqueta"})
+    return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})
 def credenciales(request):
     return render(request,"credencial.html",context={"current_tab": "credecial"})
 
@@ -732,3 +735,64 @@ def exportar_excel_multas(request):
     wb.save(response)
     
     return response
+
+def exportar_excel_prestamos_alumno(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    
+    query = request.POST.get('clave_alum')
+    print(query)
+    prestamos = None  # Inicializar la variable prestamos
+    ws.title = "Préstamos de " + query 
+    # Encabezados de la tabla
+    ws.append(["Clave de Alumno", "Nombre Alumno", "Clave de Libro", "Título libro", "Fecha límite", "Fecha regresado"])
+
+    if query:
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+        # Obtener todos los préstamos
+        prestamos = Prestamo.objects.filter(clave_alumno__clave=query)
+
+    if prestamos:  # Verificar si prestamos tiene un valor asignado
+        # Datos de la tabla
+        for prestamo in prestamos:
+            ws.append([
+                prestamo.clave_alumno.clave,
+                f"{prestamo.clave_alumno.nombre} {prestamo.clave_alumno.apellido}",
+                prestamo.clave_copia.clavecopia,
+                prestamo.clave_copia.codigolibro.titulo,
+                prestamo.regreso,
+                prestamo.fecha_regreso if prestamo.fecha_regreso else "",
+            ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="prestamos.xlsx"'
+    wb.save(response)
+    
+    return response
+
+# Vista para agregar copia
+def agregar_copia(request):
+    if request.method == 'POST':
+        copia = request.POST.get('copia')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            # Verificar si ya existe una copia asociada a esa clave
+            copia_existente = Copia.objects.filter(clavecopia=clave_copia).first()
+            if copia_existente:
+                # Si existe, agregarla a la lista global
+                listacopias.append(copia_existente)
+    return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})
+
+# Vista para vaciar lista
+def vaciar_lista(request):
+    for copia in listacopias:
+        print(copia)
+    if request.method == 'POST':
+        listacopias.clear()
+        return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})  # Redirigir a donde desees después de vaciar la lista
+    return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})  # Renderizar tu template

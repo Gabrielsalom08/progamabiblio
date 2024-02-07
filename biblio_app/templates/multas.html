@@ -3,9 +3,6 @@
 {% load static %}
 
 {% block main_content %}
-<div class="row">
-    <p>Hora del servidor: <span id="server-time"></span></p>
-</div>
 <div class="col-md-8 mx-auto my-4">
     <div class="row">
         <nav class="navbar bg-body-light">
@@ -92,28 +89,5 @@
         });
     });
 </script>
-<script>
-    // Función para obtener y mostrar la hora del servidor
-    function getServerTime() {
-        // Realiza una petición AJAX para obtener la hora del servidor
-        $.ajax({
-            url: '/get_server_time/',  // URL de la vista que devuelve la hora del servidor
-            type: 'GET',
-            success: function(response) {
-                // Muestra la hora del servidor en el span con id "server-time"
-                $('#server-time').text(response.server_time);
-            },
-            error: function(xhr, errmsg, err) {
-                // Maneja los errores si es necesario
-                console.error(xhr.status + ": " + xhr.responseText);
-            }
-        });
-    }
 
-    // Ejecuta la función getServerTime() cada 10 segundos para actualizar la hora
-    $(document).ready(function() {
-        getServerTime();  // Obtén y muestra la hora del servidor al cargar la página
-        setInterval(getServerTime, 10000);  // Actualiza la hora cada 10 segundos
-    });
-</script>
 {% endblock %}

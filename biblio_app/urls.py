@@ -34,6 +34,7 @@ urlpatterns = [
     path('copia/eliminar/<int:pk>/', eliminar_copia, name='eliminar_copia'),
     path('exportar_excel_libros/', exportar_excel_libros, name='exportar_excel_libros'),
     path('exportar_excel_prestamos/', exportar_excel_prestamos, name='exportar_excel_prestamos'),
+    path('exportar_excel_prestamos_alumno/', exportar_excel_prestamos_alumno, name='exportar_excel_prestamos_alumno'),
     path('alumno/agregar', agregar_alum),
     path('alumno/<int:pk>', alumno_detalle, name='alumno_detalle'),
     path('alumno/editar/<int:pk>', editar_alumno, name='editar_alumno'),
@@ -58,6 +59,8 @@ urlpatterns = [
     path('prestamo/ampliar/<int:pk>/', ampliar_prestamo, name='ampliar_prestamo'),
     path('multa/pagar/<int:pk>/', pagar_multa, name='pagar_multa'),
     path('get_server_time/', get_server_time, name='get_server_time'),
+    path('agregar-copia/', agregar_copia, name='agregar_copia'),
+    path('vaciar-lista/', vaciar_lista, name='vaciar_lista'),
 ]
 
 

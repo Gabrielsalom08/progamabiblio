@@ -90,6 +90,7 @@
             </form> 
             <button class="btn btn-danger" type="button" onclick="confirmarBorrarlibros()"> Borrar todos los libros</button>
             {% endif %}
+            <h6>Para mostrar como deben de estar formateado el excel haz click a Cargar desde excel sin cargar ningún archivo</h6>
         </div>
     </div>
     <div class="col-md-8">
@@ -106,28 +107,29 @@
                 <form method="post" action="{% url 'exportar_excel_libros' %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary">Exportar datos a Excel</button>
+                    
                 </form>
-                <h6> Para mostrar todos los libros despues de una busqueda realiza una busqueda sin contenido o apreta el boton de libros otra vez</h6>
+                <h6> Para mostrar todos los libros después de una búsqueda realiza una búsqueda sin contenido o aprieta el botón de libros otra vez</h6>
                 <p>{{ libros|length }} libros registrados</p>
             </div>
             <div class="row" style="margin-top: 20px;">
                 <div class="container" style="overflow-y:auto ; max-width: fit-content;">
                     <table class="table table-hover">
                         <thead>
-                            <td>Clave</td>
-                            <td>Titulo</td>
-                            <td>Autor</td>
-                            <td>Editorial</td>
-                            <td>Fecha de Publicación</td>
-                            <td>Ilustrador</td>
-                            <td>Acciones</td>  <!-- Nueva celda para Acciones -->
+                            <tr>
+                                <th scope="col">Clave</th>
+                                <th scope="col">Titulo</th>
+                                <th scope="col">Autor</th>
+                                <th scope="col">Editorial</th>
+                                <th scope="col">Fecha de Publicación</th>
+                                <th scope="col">Ilustrador</th>
+                                <th scope="col">Acciones</th>  <!-- Nueva celda para Acciones -->
+                            </tr>
                         </thead>
                         <tbody>
                             {% for libro in libros %}
                             <tr>
-                                <td>
-                                    {{ libro.codigolibro|stringformat:"06d" }}
-                                </td>
+                                <td>{{ libro.codigolibro|stringformat:"06d" }}</td>
                                 <td>{{ libro.titulo }}</td>
                                 <td>{{ libro.autor }}</td>
                                 <td>{{ libro.editorial }}</td>
@@ -135,9 +137,10 @@
                                 <td>{{ libro.ilustrador }}</td>
                                 <td>
                                     {% if user.is_authenticated %}
-                                    <a href="{% url 'editar_libro' codigolibro=libro.codigolibro %}" class="btn btn-warning"><i class="bi bi-pencil"></i>editar</a>
+                                    <a href="{% url 'editar_libro' codigolibro=libro.codigolibro %}" class="btn btn-warning"><i class="bi bi-pencil"></i>-editar-</a>
                                     <a href="{% url 'eliminar_libro' codigolibro=libro.codigolibro %}" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i>eliminar</a>
                                     {% endif %}
+                                    
                                 </td>
                             </tr>
                             {% endfor %}

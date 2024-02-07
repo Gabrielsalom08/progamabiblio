@@ -7,16 +7,26 @@
   <div class="row">
     <div class="col-md-8">
       <h2>HISTORIAL DE PRÉSTAMOS</h2>
+      
+      <div>
+        <form method="post" action="{% url 'exportar_excel_prestamos_alumno' %}">
+          {% csrf_token %}
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Clave del alumno para descargar" name="clave_alum">
+            <button type="submit" class="btn btn-primary">Exportar datos de un alumno a Excel </button>
+          </div>
+        </form>
+      </div>
       <form method="post" action="{% url 'exportar_excel_prestamos' %}">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Exportar datos a Excel</button>
-    </form>
+        <button type="submit" class="btn btn-primary">Exportar datos completos a Excel</button>
+      </form>
       <h5>Buscar Préstamo</h5>
       <form method="get" action="/prestamo" class="mb-3">
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Buscar por clave de alumno o clave de libro" name="q">
           <button type="submit" class="btn btn-outline-primary">Buscar</button>
-          <h6> Para mostrar todos los préstamos despues de una busqueda realiza una busqueda sin contenido o apreta el boton de préstamos otra vez</h6>
+          <h6> Para mostrar todos los préstamos después de una búsqueda realiza una búsqueda sin contenido o apreta el botón de préstamos otra vez</h6>
         </div>
       </form>
       <table class="table table-hover">
@@ -25,8 +35,8 @@
             <th>Clave de Alumno</th>
             <th>Nombre Alumno</th>
             <th>Clave de Libro</th>
-            <th>Titulo libro</th>
-            <th>Fecha limite</th>
+            <th>Título libro</th>
+            <th>Fecha límite</th>
             <th>Fecha regresado</th>
           </tr>
         </thead>
