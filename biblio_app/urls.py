@@ -61,6 +61,8 @@ urlpatterns = [
     path('get_server_time/', get_server_time, name='get_server_time'),
     path('agregar-copia/', agregar_copia, name='agregar_copia'),
     path('vaciar-lista/', vaciar_lista, name='vaciar_lista'),
+    path('agregar-alumno/', agregar_alu, name='agregar_alumno'),
+    path('vaciar-lista-alumno/', vaciar_lista_alum, name='vaciar_lista_alum'),
 ]
 
 

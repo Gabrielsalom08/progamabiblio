@@ -95,7 +95,7 @@ def multas(request):
 def etiquetas(request):
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})
 def credenciales(request):
-    return render(request,"credencial.html",context={"current_tab": "credecial"})
+    return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales})
 
 def login_view(request):
     if request.method == 'POST':
@@ -796,3 +796,22 @@ def vaciar_lista(request):
         listacopias.clear()
         return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})  # Redirigir a donde desees después de vaciar la lista
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})  # Renderizar tu template
+
+def agregar_alu(request):
+    if request.method == 'POST':
+        copia = request.POST.get('alumno')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            # Verificar si ya existe una copia asociada a esa clave
+            copia_existente = Alumno.objects.filter(clave=clave_copia).first()
+            if copia_existente:
+                # Si existe, agregarla a la lista global
+                listacredenciales.append(copia_existente)
+    return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales})
+
+# Vista para vaciar lista
+def vaciar_lista_alum(request):
+    if request.method == 'POST':
+        listacredenciales.clear()
+        return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales})
+    return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales})

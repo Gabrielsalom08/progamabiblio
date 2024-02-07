@@ -3,7 +3,40 @@
  {% load static %}
 
  {% block main_content %}
-
-
+ <form method="POST" action="{% url 'agregar_alumno' %}">
+    {% csrf_token %}
+    <input type="text" name="alumno" placeholder="Ingrese la clave de alumno">
+    <button type="submit">Agregar copia asociada a esa clave</button>
+  </form>
+  
+  <!-- Botón para vaciar lista -->
+  <form method="POST" action="{% url 'vaciar_lista_alum' %}">
+    {% csrf_token %}
+    <button type="submit">Vaciar lista</button>
+  </form>
+  <table style="border-collapse: collapse; width: 20cm; height: 7.5cm; margin: 3mm;">
+    {% for alumno in lista %}
+    <tr>
+        <td style="width: 6.7cm; height: 2.5cm; border: 1px solid black;">
+            <!-- Celda 1: Código de barras, clave de copia y título asociado -->
+            <div style="text-align: center;">
+                <p>{{ alumno }}</p>
+                <!-- Código de barras -->
+                <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 55px;">{{alumno.clave | stringformat:"05d"}}</span>
+                <!-- Título asociado -->
+                
+            </div>
+        </td>
+    {% endfor %}
+</table>
+<script>
+    // Obtén todos los elementos de clase "barcode" y genera el código de barras para cada uno
+    var barcodes = document.querySelectorAll('.barcode');
+    barcodes.forEach(function(barcode) {
+      // Obtiene el valor del atributo "data-value"
+      var barcodeValue = barcode.getAttribute('data-value');
+      // Genera el código de barras y lo inserta dentro del elemento span
+      JsBarcode(barcode, barcodeValue);
+    });
+  </script>
  {% endblock %}
- 
