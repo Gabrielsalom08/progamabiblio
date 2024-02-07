@@ -1,9 +1,119 @@
 <!DOCTYPE html>
- {% extends "index.html" %}
- {% load static %}
+{% extends "index.html" %}
+{% load static %}
 
- {% block main_content %}
+{% block main_content %}
+<div class="row">
+    <p>Hora del servidor: <span id="server-time"></span></p>
+</div>
+<div class="col-md-8 mx-auto my-4">
+    <div class="row">
+        <nav class="navbar bg-body-light">
+            <div class="container-fluid justify-content-center align-items-center">
+                <form class="d-flex" role="search" action="busqueda" method="get">
+                    <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search" name="q" value="{{ request.GET.q }}">
+                    <button class="btn btn-outline-success" type="submit">Buscar</button>
+                </form>
+            </div>
+        </nav>
+        <div class="row mt-4">
+            <form method="post" action="{% url 'exportar_excel_multas' %}" style="margin-left: 10px;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Exportar Datos</button>
+            </form>     
+            <h6> Para mostrar todos los libros despues de una busqueda realiza una busqueda sin contenido o apreta el boton de busqueda otra vez</h6>
+            <p>{{ copias|length }} copias registradas</p>
+        </div>
+        <div class="row mt-4">
+            <div class="container" style="overflow-y:auto;">
+                <table class="table table-hover">
+                    <thead>
+                        <th>Clave Clumno</th>
+                        <th>Nombre Alumno</th>
+                        <th>Año Alumno</th>
+                        <th>Cantidad de la multa</th>
+                        {% if user.is_authenticated %}
+                        <th>Pagar multa</th>
+                        {% endif %}
+                    </thead>
+                    <tbody>
+                        {% for multa in multas %}
+                            <tr>
+                                <td>{{ multa.alumno.clave|stringformat:"05d" }}</td>
+                                <td>{{ multa.alumno }}</td>
+                                <td> {% if multa.alumno.grupo == 0 %}
+                                    PF
+                                {% else %}
+                                    {{ multa.alumno.grupo }}
+                                {% endif %}</td>
+                                <td>${{ multa.monto }}</td>
+                                {% if user.is_authenticated %}
+                                <td><button class="btn btn-danger" onclick="marcarpagado('{{ multa.pk }}')">
+                                    <i class="bi bi-trash"></i> eliminar<!-- Ícono de papelera -->
+                                </button></td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function marcarpagado(pk) {
+        if (confirm("¿Estás seguro de que quieres borrar a esta copia esta accion es permanente y no se puede deshacer? ")) {
+            // Petición AJAX para eliminar el registro
+            $.ajax({
+                type: 'POST',
+                url: '/multa/pagar/' + pk +'/',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function () {
+                    // Recargar la página o actualizar la tabla después de borrar
+                    location.reload();
+                },
+                error: function () {
+                    // Manejar errores si es necesario
+                    location.reload();
+                }
+            });
+        } else {
+            // Si el usuario cancela, no hagas nada
+        }
+    }
+</script>
+<script>
+    $(document).ready( function () {
+        $('.table').DataTable({
+            "paging": true,
+            "pageLength": 10 // Mostrar solo 30 elementos por página
+        });
+    });
+</script>
+<script>
+    // Función para obtener y mostrar la hora del servidor
+    function getServerTime() {
+        // Realiza una petición AJAX para obtener la hora del servidor
+        $.ajax({
+            url: '/get_server_time/',  // URL de la vista que devuelve la hora del servidor
+            type: 'GET',
+            success: function(response) {
+                // Muestra la hora del servidor en el span con id "server-time"
+                $('#server-time').text(response.server_time);
+            },
+            error: function(xhr, errmsg, err) {
+                // Maneja los errores si es necesario
+                console.error(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    }
 
-
- {% endblock %}
- 
+    // Ejecuta la función getServerTime() cada 10 segundos para actualizar la hora
+    $(document).ready(function() {
+        getServerTime();  // Obtén y muestra la hora del servidor al cargar la página
+        setInterval(getServerTime, 10000);  // Actualiza la hora cada 10 segundos
+    });
+</script>
+{% endblock %}

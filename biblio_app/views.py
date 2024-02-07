@@ -13,6 +13,15 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.utils import timezone
 from openpyxl import Workbook
+from django.http import JsonResponse
+from django.utils import timezone
+
+def get_server_time(request):
+    # Obtiene la hora actual del servidor
+    server_time = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Devuelve la hora del servidor como una respuesta JSON
+    return JsonResponse({'server_time': server_time})
 
 #register your models here
 
@@ -61,7 +70,25 @@ def retornos(request):
     return render(request,"retorno.html",context={"current_tab": "retorno", "prestamo": prestamo})
 
 def multas(request):
-    return render(request,"multas.html",context={"current_tab": "multa"})
+    query = request.GET.get('q')
+    if query:
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+        
+        # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
+        multas = Multa.objects.filter(
+            Q(clave_alumno__icontains=query) &
+            Q(pagado =False) 
+        ).distinct()
+    else:
+        # Si no hay búsqueda, mostrar todos los préstamos activos
+        multas = Multa.objects.filter(pagado=False)
+
+    # Devolver una respuesta con la lista de préstamos
+    return render(request,"multas.html",context={"current_tab": "multa", "multas": multas})
+
 def etiquetas(request):
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta"})
 def credenciales(request):
@@ -660,6 +687,48 @@ def exportar_excel_prestamos(request):
     # Guardar el libro de trabajo como un archivo Excel
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="prestamos.xlsx"'
+    wb.save(response)
+    
+    return response
+
+def pagar_multa(request, pk):
+    if request.method == 'POST':
+        try:
+            multa = Multa.objects.get(pk=pk)
+            multa.pagado = True
+            multa.save()
+            return JsonResponse({'success': True})
+        except Multa.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'La multa no existe'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Método de solicitud incorrecto'})
+    
+
+def exportar_excel_multas(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Multas"
+
+    # Encabezados de la tabla
+    ws.append(["Clave de Alumno", "Nombre Alumno", "Año Alumno", "Cantidad de multa", "Pagado"])
+
+    # Obtener todas las multas
+    multas = Multa.objects.all()
+
+    # Datos de la tabla
+    for multa in multas:
+        ws.append([
+            multa.alumno.clave,
+            f"{multa.alumno.nombre} {multa.alumno.apellido}",
+            "PF" if multa.alumno.grupo == 0 else multa.alumno.grupo,
+            multa.monto,
+            "Sí" if multa.pagado else "No",
+        ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="multas.xlsx"'
     wb.save(response)
     
     return response
