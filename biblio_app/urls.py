@@ -63,6 +63,8 @@ urlpatterns = [
     path('vaciar-lista/', vaciar_lista, name='vaciar_lista'),
     path('agregar-alumno/', agregar_alu, name='agregar_alumno'),
     path('vaciar-lista-alumno/', vaciar_lista_alum, name='vaciar_lista_alum'),
+    path('quitar_registro/<int:copia_id>/', quitar_registro, name='quitar_registro'),
+    path('quitar_registro_alumno/<int:alumno_id>/', quitar_registro_alum, name='quitar_registro_alumno'),
 ]
 
 

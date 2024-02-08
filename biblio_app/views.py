@@ -786,7 +786,7 @@ def agregar_copia(request):
             if copia_existente:
                 # Si existe, agregarla a la lista global
                 listacopias.append(copia_existente)
-    return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})
+    return redirect('/etiqueta')
 
 # Vista para vaciar lista
 def vaciar_lista(request):
@@ -794,8 +794,8 @@ def vaciar_lista(request):
         print(copia)
     if request.method == 'POST':
         listacopias.clear()
-        return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})  # Redirigir a donde desees después de vaciar la lista
-    return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})  # Renderizar tu template
+        return redirect('/etiqueta')  # Redirigir a donde desees después de vaciar la lista
+    return redirect('/etiqueta')  # Renderizar tu template
 
 def agregar_alu(request):
     if request.method == 'POST':
@@ -807,11 +807,22 @@ def agregar_alu(request):
             if copia_existente:
                 # Si existe, agregarla a la lista global
                 listacredenciales.append(copia_existente)
-    return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales})
+    return redirect('/credencial')
 
 # Vista para vaciar lista
 def vaciar_lista_alum(request):
     if request.method == 'POST':
         listacredenciales.clear()
-        return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales})
-    return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales})
+        return redirect('/credencial')
+    return redirect('/credencial')
+
+def quitar_registro(request, copia_id):
+    # Encuentra el objeto copia por su ID
+    copia = Copia.objects.get(clavecopia=copia_id)
+    listacopias.remove(copia)
+    return redirect('/etiqueta')
+def quitar_registro_alum(request, alumno_id):
+    # Encuentra el objeto copia por su ID
+    copia = Alumno.objects.get(clave=alumno_id)
+    listacredenciales.remove(copia)
+    return redirect('/credencial')
