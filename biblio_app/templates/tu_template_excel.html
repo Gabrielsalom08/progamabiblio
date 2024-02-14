@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<div style="margin: 0 auto; max-width: 800px; padding: 20px;">
+    <h1 style="text-align: center;">Formato de Archivo Excel para Cargar Datos</h1>
+
+    <h2>Cargar Copias desde Excel</h2>
+    <p>El archivo Excel debe contener al menos una columna con el nombre 'codigolibro' que corresponde al código del libro. Además, puedes agregar una columna extra como se ve abajo con el nombre 'clavecopia' para que se introduzca la clave de la copia manualmente si no quieres puedes no incluirla.</p>
+    <p>Ejemplo:</p>
+    <table border="1" style="margin: 0 auto; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 8px;">codigolibro</th>
+                <th style="border: 1px solid black; padding: 8px;">clavecopia</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">123456</td>
+                <td style="border: 1px solid black; padding: 8px;">1</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">789012</td>
+                <td style="border: 1px solid black; padding: 8px;">2</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Cargar Alumnos desde Excel</h2>
+    <p>El archivo Excel debe contener al menos tres columnas con los nombres 'nombre', 'apellido' y 'grupo' que corresponden al nombre, apellido y grupo del alumno respectivamente. Además, puedes agregar una columna con el nombre de 'clave' para que se introduzca la clave introducida en el excel si no se asigna automáticamente.</p>
+    <p>Ejemplo:</p>
+    <table border="1" style="margin: 0 auto; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 8px;">nombre</th>
+                <th style="border: 1px solid black; padding: 8px;">apellido</th>
+                <th style="border: 1px solid black; padding: 8px;">grupo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">Juan</td>
+                <td style="border: 1px solid black; padding: 8px;">Perez</td>
+                <td style="border: 1px solid black; padding: 8px;">3</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">María</td>
+                <td style="border: 1px solid black; padding: 8px;">Gonzalez</td>
+                <td style="border: 1px solid black; padding: 8px;">2</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Cargar Libros desde Excel</h2>
+    <p>El archivo Excel debe contener al menos tres columnas con los nombres 'titulo', 'autor' y 'editorial' que corresponden al título, autor y editorial del libro respectivamente.</p>
+    <p>Columnas opcionales que se pueden agregar:</p>
+    <ul>
+        <li>codigolibro</li>
+        <li>ilustrador</li>
+        <li>fechapublicacion</li>
+        <li>tomo</li>
+        <li>caracteristicas</li>
+        <li>ubicacionbiblio</li>
+        <li>publico</li>
+    </ul>
+    <p>Ejemplo:</p>
+    <table border="1" style="margin: 0 auto; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 8px;">titulo</th>
+                <th style="border: 1px solid black; padding: 8px;">autor</th>
+                <th style="border: 1px solid black; padding: 8px;">editorial</th>
+                <th style="border: 1px solid black; padding: 8px;">ilustrador</th>
+                <th style="border: 1px solid black; padding: 8px;">fechapublicacion</th>
+                <th style="border: 1px solid black; padding: 8px;">tomo</th>
+                <th style="border: 1px solid black; padding: 8px;">caracteristicas</th>
+                <th style="border: 1px solid black; padding: 8px;">ubicacionbiblio</th>
+                <th style="border: 1px solid black; padding: 8px;">publicodirigido</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">Harry Potter</td>
+                <td style="border: 1px solid black; padding: 8px;">J.K. Rowling</td>
+                <td style="border: 1px solid black; padding: 8px;">Salamandra</td>
+                <td style="border: 1px solid black; padding: 8px;">John Smith</td>
+                <td style="border: 1px solid black; padding: 8px;">2001</td>
+                <td style="border: 1px solid black; padding: 8px;">1</td>
+                <td style="border: 1px solid black; padding: 8px;">Edición especial</td>
+                <td style="border: 1px solid black; padding: 8px;">123.45</td>
+                <td style="border: 1px solid black; padding: 8px;">Juvenil</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">El Señor de los Anillos</td>
+                <td style="border: 1px solid black; padding: 8px;">J.R.R. Tolkien</td>
+                <td style="border: 1px solid black; padding: 8px;">Minotauro</td>
+                <td style="border: 1px solid black; padding: 8px;">Alan Johnson</td>
+                <td style="border: 1px solid black; padding: 8px;">1954</td>
+                <td style="border: 1px solid black; padding: 8px;">2</td>
+                <td style="border: 1px solid black; padding: 8px;">Trilogía</td>
+                <td style="border: 1px solid black; padding: 8px;">345.67</td>
+                <td style="border: 1px solid black; padding: 8px;">Fantasía épica</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

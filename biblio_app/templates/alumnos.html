@@ -47,6 +47,7 @@
             </form>            
             <button class="btn btn-danger" type="button" onclick="confirmarBorrarAlumnos()"> Fin de curso</button>
             {% endif %}
+            <h6>Para mostrar como deben de estar formatedo el excel haz click a Cargar desde excel sin cargar ningun archivo</h6>
         </div>
     </div>
     <div class="col-md-8">
@@ -62,10 +63,14 @@
             <h6> Para mostrar todos los alumnos de preprimaria solo busca "0"</h6>
             <h6> Para mostrar todos los alumnos despues de una busqueda realiza una busqueda sin contenido o apreta el boton de alumnos otra vez</h6>
             <div class="row" style="margin-top: 20 px;">
+                <form method="post" action="{% url 'exportar_excel_alumnos' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Exportar datos a Excel</button>
+                </form>
                 <p>{{alumnos|length}} alumnos registrados</p>
             </div>
             <div class="row" style="margin-top: 20px;">
-                <div class="container" style="overflow-y:auto ;">
+                <div class="container" style="overflow-y: auto; max-width: fit-content;">
                     <table class="table table-hover">
                         <!-- Agrega estas líneas en el encabezado de la tabla -->
 <thead>
@@ -144,6 +149,14 @@
             // Si el usuario cancela, no hagas nada
         }
     }
+</script>
+<script>
+    $(document).ready( function () {
+        $('.table').DataTable({
+            "paging": true,
+            "pageLength": 20 // Mostrar solo 30 elementos por página
+        });
+    });
 </script>
 
 {% endblock %}

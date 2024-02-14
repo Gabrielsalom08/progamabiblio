@@ -12,6 +12,21 @@ from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.utils import timezone
+from openpyxl import Workbook
+from django.http import JsonResponse
+from django.utils import timezone
+
+listacopias=[]
+listacredenciales=[]
+vaciocopias=[]
+vacioalum=[]
+
+def get_server_time(request):
+    # Obtiene la hora actual del servidor
+    server_time = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Devuelve la hora del servidor como una respuesta JSON
+    return JsonResponse({'server_time': server_time})
 
 #register your models here
 
@@ -28,8 +43,8 @@ def prestamos(request):
         
         # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
         prestamo = Prestamo.objects.filter(
-            Q(clave_alumno__icontains=query) |
-            Q(clave_copia__icontains=query)
+            Q(clave_alumno__clave__icontains=query) |
+            Q(clave_copia__clave__icontains=query)
         ).distinct().order_by('-pk')
     else:
         # Si no hay búsqueda, mostrar todos los prestamos
@@ -48,8 +63,8 @@ def retornos(request):
         
         # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
         prestamo = Prestamo.objects.filter(
-            (Q(clave_alumno__icontains=query) |
-            Q(clave_copia__icontains=query)) &
+            Q(clave_alumno__clave__icontains=query) |
+            Q(clave_copia__clave__icontains=query) &
             Q(activo=True)
         ).distinct()
     else:
@@ -60,11 +75,29 @@ def retornos(request):
     return render(request,"retorno.html",context={"current_tab": "retorno", "prestamo": prestamo})
 
 def multas(request):
-    return render(request,"multas.html",context={"current_tab": "multa"})
+    query = request.GET.get('q')
+    if query:
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+        
+        # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
+        multas = Multa.objects.filter(
+            Q(clave_alumno_clave__icontains=query) &
+            Q(pagado =False) 
+        ).distinct()
+    else:
+        # Si no hay búsqueda, mostrar todos los préstamos activos
+        multas = Multa.objects.filter(pagado=False)
+
+    # Devolver una respuesta con la lista de préstamos
+    return render(request,"multas.html",context={"current_tab": "multa", "multas": multas})
+
 def etiquetas(request):
-    return render(request,"etiqueta.html",context={"current_tab": "etiqueta"})
+    return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias, "vacios":vaciocopias})
 def credenciales(request):
-    return render(request,"credencial.html",context={"current_tab": "credecial"})
+    return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales,"vacios":vacioalum})
 
 def login_view(request):
     if request.method == 'POST':
@@ -538,9 +571,280 @@ def completar_prestamo(request, pk):
     alumno.sacalibro = False
     alumno.save()
 
-    return redirect('retorno')
+    return redirect('/retorno')
 
 def ampliar_prestamo(request, pk):
     prestamo = Prestamo.objects.get(pk=pk)
     prestamo.regreso += timezone.timedelta(days=7)
     prestamo.save()
+    return redirect('/retorno')
+
+def exportar_excel(request):
+    try:
+        # Crear un libro de trabajo de Excel
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Copias"
+
+        # Encabezados de la tabla
+        ws.append(["Codigo de Copia", "Codigo de Libro","Titulo del Libro", "Autor", "Ilustrador", "Editorial", "Clasificacion Dewey"])
+
+        # Obtener todas las copias
+        copias = Copia.objects.all()
+
+        # Datos de la tabla
+        for copia in copias:
+            ws.append([copia.clavecopia, copia.codigolibro.codigolibro ,copia.codigolibro.titulo, copia.codigolibro.autor, copia.codigolibro.ilustrador, copia.codigolibro.editorial, copia.codigolibro.dewy])
+
+        # Guardar el libro de trabajo como un archivo Excel
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="copias.xlsx"'
+        wb.save(response)
+        
+        # Retorna la respuesta
+        return response
+    
+    except Exception as e:
+        # Maneja la excepción imprimiendo el mensaje de error
+        print(f"Error en la función exportar_excel: {e}")
+        
+        # Puedes redirigir a una página de error o simplemente retornar un HttpResponse con un mensaje de error
+        return HttpResponse("Ocurrió un error al exportar los datos a Excel.")
+
+def exportar_excel_alumnos(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Alumnos"
+
+    # Encabezados de la tabla
+    ws.append(["Clave", "Nombre", "Apellido", "Año"])
+
+    # Obtener todos los alumnos
+    alumnos = Alumno.objects.all()
+
+    # Datos de la tabla
+    for alumno in alumnos:
+        ws.append([alumno.clave, alumno.nombre, alumno.apellido, alumno.grupo])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="alumnos.xlsx"'
+    wb.save(response)
+    
+    return response
+def exportar_excel_libros(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Libros"
+
+    # Encabezados de la tabla
+    ws.append(["Código de Libro", "Título", "Autor", "Ilustrador", "Fecha de Publicación", "Editorial", "Número de Tomo", "Características Especiales", "Clasificación Dewey", "Público Dirigido"])
+
+    # Obtener todos los libros
+    libros = Libro.objects.all()
+
+    # Datos de la tabla
+    for libro in libros:
+        ws.append([
+            libro.codigolibro,
+            libro.titulo,
+            libro.autor,
+            libro.ilustrador,
+            libro.fechapublicacion,
+            libro.editorial,
+            libro.numerotomo,
+            libro.caracteristicasespeciales,
+            libro.dewy,
+            libro.publicodirigido,
+        ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="libros.xlsx"'
+    wb.save(response)
+    
+    return response
+def exportar_excel_prestamos(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Préstamos"
+
+    # Encabezados de la tabla
+    ws.append(["Clave de Alumno", "Nombre Alumno", "Clave de Libro", "Título libro", "Fecha límite", "Fecha regresado"])
+
+    # Obtener todos los préstamos
+    prestamos = Prestamo.objects.all()
+
+    # Datos de la tabla
+    for prestamo in prestamos:
+        ws.append([
+            prestamo.clave_alumno.clave,
+            f"{prestamo.clave_alumno.nombre} {prestamo.clave_alumno.apellido}",
+            prestamo.clave_copia.clavecopia,
+            prestamo.clave_copia.codigolibro.titulo,
+            prestamo.regreso,
+            prestamo.fecha_regreso if prestamo.fecha_regreso else "",
+        ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="prestamos.xlsx"'
+    wb.save(response)
+    
+    return response
+
+def pagar_multa(request, pk):
+    if request.method == 'POST':
+        try:
+            multa = Multa.objects.get(pk=pk)
+            multa.pagado = True
+            multa.save()
+            return JsonResponse({'success': True})
+        except Multa.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'La multa no existe'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Método de solicitud incorrecto'})
+    
+
+def exportar_excel_multas(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Multas"
+
+    # Encabezados de la tabla
+    ws.append(["Clave de Alumno", "Nombre Alumno", "Año Alumno", "Cantidad de multa", "Pagado"])
+
+    # Obtener todas las multas
+    multas = Multa.objects.all()
+
+    # Datos de la tabla
+    for multa in multas:
+        ws.append([
+            multa.alumno.clave,
+            f"{multa.alumno.nombre} {multa.alumno.apellido}",
+            "PF" if multa.alumno.grupo == 0 else multa.alumno.grupo,
+            multa.monto,
+            "Sí" if multa.pagado else "No",
+        ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="multas.xlsx"'
+    wb.save(response)
+    
+    return response
+
+def exportar_excel_prestamos_alumno(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    
+    query = request.POST.get('clave_alum')
+    print(query)
+    prestamos = None  # Inicializar la variable prestamos
+    ws.title = "Préstamos de " + query 
+    # Encabezados de la tabla
+    ws.append(["Clave de Alumno", "Nombre Alumno", "Clave de Libro", "Título libro", "Fecha límite", "Fecha regresado"])
+
+    if query:
+        # Verificar si la consulta es un número puro
+        if query.isdigit():
+            # Eliminar los ceros a la izquierda en el caso de que existan
+            query = str(int(query))
+        # Obtener todos los préstamos
+        prestamos = Prestamo.objects.filter(clave_alumno__clave=query)
+
+    if prestamos:  # Verificar si prestamos tiene un valor asignado
+        # Datos de la tabla
+        for prestamo in prestamos:
+            ws.append([
+                prestamo.clave_alumno.clave,
+                f"{prestamo.clave_alumno.nombre} {prestamo.clave_alumno.apellido}",
+                prestamo.clave_copia.clavecopia,
+                prestamo.clave_copia.codigolibro.titulo,
+                prestamo.regreso,
+                prestamo.fecha_regreso if prestamo.fecha_regreso else "",
+            ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="prestamos.xlsx"'
+    wb.save(response)
+    
+    return response
+
+# Vista para agregar copia
+def agregar_copia(request):
+    if request.method == 'POST':
+        copia = request.POST.get('copia')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            # Verificar si ya existe una copia asociada a esa clave
+            copia_existente = Copia.objects.filter(clavecopia=clave_copia).first()
+            if copia_existente:
+                # Si existe, agregarla a la lista global
+                listacopias.append(copia_existente)
+    return redirect('/etiqueta')
+
+# Vista para vaciar lista
+def vaciar_lista(request):
+    if request.method == 'POST':
+        listacopias.clear()
+        vaciocopias.clear()
+        return redirect('/etiqueta')  # Redirigir a donde desees después de vaciar la lista
+    return redirect('/etiqueta')  # Renderizar tu template
+
+def agregar_alu(request):
+    if request.method == 'POST':
+        copia = request.POST.get('alumno')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            # Verificar si ya existe una copia asociada a esa clave
+            copia_existente = Alumno.objects.filter(clave=clave_copia).first()
+            if copia_existente:
+                # Si existe, agregarla a la lista global
+                listacredenciales.append(copia_existente)
+    return redirect('/credencial')
+
+# Vista para vaciar lista
+def vaciar_lista_alum(request):
+    if request.method == 'POST':
+        listacredenciales.clear()
+        vacioalum.clear()
+        return redirect('/credencial')
+    return redirect('/credencial')
+
+def quitar_registro(request, copia_id):
+    # Encuentra el objeto copia por su ID
+    copia = Copia.objects.get(clavecopia=copia_id)
+    listacopias.remove(copia)
+    return redirect('/etiqueta')
+def quitar_registro_alum(request, alumno_id):
+    # Encuentra el objeto copia por su ID
+    copia = Alumno.objects.get(clave=alumno_id)
+    listacredenciales.remove(copia)
+    return redirect('/credencial')
+
+def agregar_alu_vacia(request):
+    if request.method == 'POST':
+        copia = request.POST.get('alumno')
+        if copia.isdigit():
+           clave_copia = int(copia)
+           vacioalum.clear()
+           for i in range(clave_copia):
+               vacioalum.append(" ")
+    return redirect('/credencial')
+
+def agregar_copia_vacia(request):
+    if request.method == 'POST':
+        copia = request.POST.get('copia')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            vaciocopias.clear()
+            for i in range(clave_copia):
+                vaciocopias.append(" ")
+    return redirect('/etiqueta')

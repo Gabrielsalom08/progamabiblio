@@ -110,4 +110,13 @@
         }
     }
 </script>
+<script>
+    $(document).ready( function () {
+        $('.table').DataTable({
+            "paging": true,
+            "pageLength": 30 // Mostrar solo 30 elementos por página
+        });
+    });
+</script>
+</body>
  {% endblock %}
