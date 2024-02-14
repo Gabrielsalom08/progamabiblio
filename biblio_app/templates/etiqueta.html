@@ -72,6 +72,13 @@
         <button type="submit" class="btn btn-success">Agregar copia asociada a esa clave</button>
     </div>
 </form>
+<form method="POST" style="margin-left: 150px; margin-top: 20px;" action="{% url 'agregar_copia_vacio' %}">
+    {% csrf_token %}
+    <div class="input-group mb-3"  style="max-width: 600px;">
+        <input type="text" name="copia" class="form-control" placeholder="Ingrese numero de renglones vacios">
+        <button type="submit" class="btn btn-success">Agregar renglones vacios</button>
+    </div>
+</form>
 
 <!-- Botón para vaciar lista -->
 <form method="POST" style="margin-left: 150px; margin-top: 20px;" action="{% url 'vaciar_lista' %}">
@@ -83,6 +90,24 @@
 <button onclick="window.print()" style="margin-left: 150px; margin-top: 20px;" class="btn btn-success">Imprimir tabla</button>
 <center>
     <table class="print-table">
+        {% for vacio in vacios %}
+        <tr>
+            <td>
+                <!-- Celda 1: Código de barras, clave de copia y título asociado -->
+                
+            </td>
+            <td>
+                <!-- Celda 2: Clave de libro/copía, código Dewey y autor -->
+               
+            </td>
+            <td>
+               
+            </td>
+            <td class="hidden-on-print">
+                
+            </td>
+        </tr>    
+        {% endfor %}
         {% for copia in lista %}
         <tr>
             <td>

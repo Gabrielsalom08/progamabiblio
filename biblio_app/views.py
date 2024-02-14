@@ -18,6 +18,8 @@ from django.utils import timezone
 
 listacopias=[]
 listacredenciales=[]
+vaciocopias=[]
+vacioalum=[]
 
 def get_server_time(request):
     # Obtiene la hora actual del servidor
@@ -93,9 +95,9 @@ def multas(request):
     return render(request,"multas.html",context={"current_tab": "multa", "multas": multas})
 
 def etiquetas(request):
-    return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias})
+    return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias, "vacios":vaciocopias})
 def credenciales(request):
-    return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales})
+    return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales,"vacios":vacioalum})
 
 def login_view(request):
     if request.method == 'POST':
@@ -790,10 +792,9 @@ def agregar_copia(request):
 
 # Vista para vaciar lista
 def vaciar_lista(request):
-    for copia in listacopias:
-        print(copia)
     if request.method == 'POST':
         listacopias.clear()
+        vaciocopias.clear()
         return redirect('/etiqueta')  # Redirigir a donde desees después de vaciar la lista
     return redirect('/etiqueta')  # Renderizar tu template
 
@@ -813,6 +814,7 @@ def agregar_alu(request):
 def vaciar_lista_alum(request):
     if request.method == 'POST':
         listacredenciales.clear()
+        vacioalum.clear()
         return redirect('/credencial')
     return redirect('/credencial')
 
@@ -826,3 +828,23 @@ def quitar_registro_alum(request, alumno_id):
     copia = Alumno.objects.get(clave=alumno_id)
     listacredenciales.remove(copia)
     return redirect('/credencial')
+
+def agregar_alu_vacia(request):
+    if request.method == 'POST':
+        copia = request.POST.get('alumno')
+        if copia.isdigit():
+           clave_copia = int(copia)
+           vacioalum.clear()
+           for i in range(clave_copia):
+               vacioalum.append(" ")
+    return redirect('/credencial')
+
+def agregar_copia_vacia(request):
+    if request.method == 'POST':
+        copia = request.POST.get('copia')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            vaciocopias.clear()
+            for i in range(clave_copia):
+                vaciocopias.append(" ")
+    return redirect('/etiqueta')

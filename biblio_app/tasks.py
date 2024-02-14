@@ -21,16 +21,16 @@ def actualizar_multas():
         multas = Multa.objects.filter(prestamo=prestamo)
         if multas.exists():
             for multa in multas:
-                multa.monto += 1
+                multa.monto += 2
                 multa.save()
         else:
-            Multa.objects.create(monto=1, alumno=prestamo.clave_alumno, prestamo=prestamo)
+            Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, prestamo=prestamo)
     
 
 def iniciar_planificador():
     scheduler = BackgroundScheduler()
     # Configurar la hora y los días de la semana en los que se ejecutará la tarea
-    trigger = CronTrigger(hour=7, minute=00, day_of_week='mon-fri')  # Ejemplo: ejecutar a las 6:00 AM de lunes a viernes
+    trigger = CronTrigger(hour='6-7', minute=30, day_of_week='mon-fri')  # Ejemplo: ejecutar a las 6:00 AM de lunes a viernes
     # Agregar la tarea para ejecutar actualizar_multas en la hora y días de la semana especificados
     scheduler.add_job(actualizar_multas, trigger=trigger)
     scheduler.start()
