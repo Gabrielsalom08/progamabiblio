@@ -14,6 +14,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from openpyxl import Workbook
 from django.http import JsonResponse
+from django.db.models import CharField, Value
+from django.db.models.functions import Concat
 from django.utils import timezone
 
 listacopias=[]
@@ -85,14 +87,16 @@ def multas(request):
         # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
         multas = Multa.objects.filter(
             Q(clave_alumno_clave__icontains=query) &
-            Q(pagado =False) 
+            Q(pagado=False) &
+            Q(monto__gt=10)  # Filtrar multas con monto mayor a 10
         ).distinct()
     else:
         # Si no hay búsqueda, mostrar todos los préstamos activos
-        multas = Multa.objects.filter(pagado=False)
+        multas = Multa.objects.filter(pagado=False, monto__gt=9)  # Filtrar multas con monto mayor a 10
 
     # Devolver una respuesta con la lista de préstamos
-    return render(request,"multas.html",context={"current_tab": "multa", "multas": multas})
+    return render(request, "multas.html", context={"current_tab": "multa", "multas": multas})
+
 
 def etiquetas(request):
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias, "vacios":vaciocopias})
@@ -123,14 +127,16 @@ def alumno_pest(request):
             query = str(int(query))
         
         # Realizar la búsqueda utilizando el campo 'nombre', 'apellido', 'clave' o 'grupo'
-        alumnos = Alumno.objects.filter(
+        alumnos = Alumno.objects.annotate(
+            nombre_apellido=Concat('nombre', Value(' '), 'apellido', output_field=CharField())
+        ).filter(
             Q(nombre__icontains=query) |
             Q(apellido__icontains=query) |
-            Q(nombre__icontains=query.split()[0]) &  # Buscar el primer nombre
-            Q(apellido__icontains=query.split()[-1]) |  # Buscar el último apellido
             Q(clave__icontains=query) |
-            Q(grupo__icontains=query)
+            Q(grupo__icontains=query) |
+            Q(nombre_apellido__icontains=query)  # Buscar en el campo combinado de nombre y apellido
         ).distinct()
+        
     else:
         # Si no hay búsqueda, mostrar todos los alumnos
         alumnos = Alumno.objects.all()
@@ -227,6 +233,11 @@ def cargar_desde_excel(request):
 
 def borrar_todos_los_alumnos(request):
     try:
+        # Verificar si existen alumnos con grupo igual a 6 y sacalibro verdadero
+        if Alumno.objects.filter(grupo=6, sacalibro=True).exists():
+            # Si existen, lanzar un error
+              return render(request, 'error.html', {'mensaje': 'Existen alumnos de 6to con préstamos activos. Favor de completar estos préstamos para realizar el proceso de final de año.'})
+       
         # Eliminar todos los alumnos con un valor de grupo de 6 o superior
         Alumno.objects.filter(grupo__gte=6).delete()
         
@@ -239,7 +250,7 @@ def borrar_todos_los_alumnos(request):
     except ValidationError as e:
         # Si se produce una excepción de validación, mostrar un mensaje de error
         return render(request, 'error.html', {'mensaje': '; '.join(e.messages)})
-
+    
 def libros_pest(request):
     query = request.GET.get('q')
     if query:
@@ -527,7 +538,7 @@ def nuevo_prestamo(request):
             alumno = Alumno.objects.get(clave=clave_alumno)
             copia = Copia.objects.get(clavecopia=clave_copia)
 
-            if not alumno.sacalibro and copia.disponible:
+            if copia.disponible:
                 prestamo = Prestamo.objects.create(
                     clave_alumno=alumno,
                     clave_copia=copia,
