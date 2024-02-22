@@ -17,7 +17,7 @@ from django.http import JsonResponse
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
-
+from django.db.models import F
 listacopias=[]
 listacredenciales=[]
 vaciocopias=[]
@@ -35,6 +35,8 @@ def get_server_time(request):
 # Create your views here.
 def inicio(request):
     return render(request,"inicio.html",context={"current_tab": "inicio"})
+
+
 def prestamos(request):
     query = request.GET.get('q')
     if query:
@@ -47,13 +49,17 @@ def prestamos(request):
         prestamo = Prestamo.objects.filter(
             Q(clave_alumno__clave__icontains=query) |
             Q(clave_copia__clave__icontains=query)
-        ).distinct().order_by('-pk')
+        ).distinct()
     else:
         # Si no hay búsqueda, mostrar todos los prestamos
-        prestamo = Prestamo.objects.all().order_by('-pk')
+        prestamo = Prestamo.objects.all()
 
-    # Devolver una respuesta con la lista de prestamos
-    return render(request,"prestamo.html",context={"current_tab": "prestamo", "prestamo": prestamo})
+    # Ordenar los préstamos del más nuevo al más antiguo
+    prestamo = prestamo.order_by(F('fecha_creacion').desc(nulls_last=True))
+
+    # Devolver una respuesta con la lista de préstamos ordenados
+    return render(request, "prestamo.html", context={"current_tab": "prestamo", "prestamo": prestamo})
+
 
 def retornos(request):
     query = request.GET.get('q')
@@ -128,12 +134,14 @@ def alumno_pest(request):
         
         # Realizar la búsqueda utilizando el campo 'nombre', 'apellido', 'clave' o 'grupo'
         alumnos = Alumno.objects.annotate(
-            nombre_apellido=Concat('nombre', Value(' '), 'apellido', output_field=CharField())
+            nombre_apellido=Concat('nombre', Value(' '), 'apellido', output_field=CharField()),
+            grado_grupo=Concat('grupo','clase',output_field=CharField()),
         ).filter(
             Q(nombre__icontains=query) |
             Q(apellido__icontains=query) |
             Q(clave__icontains=query) |
             Q(grupo__icontains=query) |
+            Q(grado_grupo__icontains=query) |
             Q(nombre_apellido__icontains=query)  # Buscar en el campo combinado de nombre y apellido
         ).distinct()
         
@@ -151,6 +159,7 @@ def agregar_alum(request):
         nombre = request.POST.get('nombre')
         apellido = request.POST.get('apellido')
         grupo = request.POST.get('grupo')
+        clase= request.POST.get('clase','')
 
         # Verificar si los campos obligatorios no están vacíos
         if not nombre or not apellido or not grupo:
@@ -158,7 +167,7 @@ def agregar_alum(request):
 
         try:
             # Intentar crear una instancia de Alumno con los datos proporcionados
-            alumno_item = Alumno(nombre=nombre, apellido=apellido, grupo=grupo)
+            alumno_item = Alumno(nombre=nombre, apellido=apellido, grupo=grupo,clase=clase)
             alumno_item.full_clean()  # Validar los datos del modelo
             alumno_item.save()  # Guardar el objeto en la base de datos
             return redirect('/alumno')
@@ -179,6 +188,7 @@ def editar_alumno(request, pk):
         alumno_obj.nombre = request.POST['nombre']
         alumno_obj.apellido = request.POST['apellido']
         alumno_obj.grupo = request.POST['grupo']
+        alumno_obj.clase = request.POST['clase']
         alumno_obj.save()
         return redirect('/alumno')
 
@@ -199,7 +209,7 @@ def cargar_desde_excel(request):
         excel_file = request.FILES['excel_file']
         df = pd.read_excel(excel_file)
 
-        required_columns = ['nombre', 'apellido', 'grupo']
+        required_columns = ['nombre', 'apellido', 'grado']
         missing_columns = [col for col in required_columns if col not in df.columns]
 
         if missing_columns:
@@ -217,7 +227,8 @@ def cargar_desde_excel(request):
                 clave=clave,
                 nombre=row['nombre'],
                 apellido=row['apellido'],
-                grupo=row['grupo'],
+                grupo=row['grado'],
+                clase=row.get('grupo', None),
             )
 
             try:
@@ -263,7 +274,8 @@ def libros_pest(request):
             Q(codigolibro__icontains=query) |
             Q(titulo__icontains=query) |
             Q(autor__icontains=query) |
-            Q(editorial__icontains=query)
+            Q(editorial__icontains=query)|
+            Q(palabrasclave__icontains=query)
         )
     else:
         libros = Libro.objects.all()
@@ -289,8 +301,10 @@ def agregar_libros(request):
                 publicodirigido=request.POST.get('publico', ''),
                 fechapublicacion=fechapubl,
                 caracteristicasespeciales=request.POST.get('caracteristicas', ''),
-                ilustrador=request.POST.get('ilustrador','')
-            )
+                ilustrador=request.POST.get('ilustrador',''),
+                palabrasclave=request.POST.get('clave',''),
+                item=request.POST.get('item','')
+                )
             libro_item.full_clean()  # Realiza todas las validaciones del modelo
             libro_item.save()
             return redirect('/libro')
@@ -346,6 +360,8 @@ def editar_libro(request, codigolibro):
         libro_obj.caracteristicasespeciales = request.POST.get('caracteristicasespeciales', None)
         libro_obj.dewy = request.POST.get('ubicacionbiblio', None)
         libro_obj.publicodirigido = request.POST.get('publicodirigido', None)
+        libro_obj.palabrasclave = request.POST.get('clave', None)
+        libro_obj.item = request.POST.get('item', None)
 
         # Obtener el valor de fechapublicacion del formulario
         fechapublicacion = request.POST.get('fechapublicacion')
@@ -414,6 +430,8 @@ def cargar_desde_excel_libro(request):
                     caracteristicasespeciales=row.get('caracteristicas', None),
                     dewy=row.get('ubicacionbiblio', None),
                     publicodirigido=row.get('publico', None),
+                    item=row.get('item', None),
+                    palabrasclave=row.get('palabras_clave', None),
                 )
 
                 try:
@@ -452,7 +470,7 @@ def busqueda_pest(request):
             # Eliminar los ceros a la izquierda en el caso de que existan
             query = str(int(query))
     if query:
-        copias = Copia.objects.filter(Q(clavecopia__icontains=query) | Q(codigolibro__titulo__icontains=query) | Q(codigolibro__autor__icontains=query) | Q(codigolibro__editorial__icontains=query) | Q(codigolibro__ilustrador__icontains=query))
+        copias = Copia.objects.filter(Q(clavecopia__icontains=query) | Q(codigolibro__titulo__icontains=query) | Q(codigolibro__autor__icontains=query) | Q(codigolibro__editorial__icontains=query) | Q(codigolibro__ilustrador__icontains=query)|Q(codigolibro__palabrasclave__icontains=query))
     else:
         # Si no hay búsqueda, muestra todas las copias
         copias = Copia.objects.all()
@@ -544,7 +562,8 @@ def nuevo_prestamo(request):
                     clave_copia=copia,
                     activo=True,
                     regreso=datetime.now() + timedelta(days=7),
-                    fecha_regreso=None
+                    fecha_regreso=None,
+                    fecha_creacion = datetime.now()
                 )
 
                 # Modificar disponibilidad de copia y clave de alumno en la copia
@@ -558,7 +577,7 @@ def nuevo_prestamo(request):
 
                 return redirect('/prestamo')
             else:
-                error_message = 'El alumno ya tiene un libro sacado o la copia no está disponible.'
+                error_message = 'La copia no está disponible.'
                 return render(request, 'error.html', {'mensaje': error_message})
         except (Alumno.DoesNotExist, Copia.DoesNotExist):
             error_message = 'La clave de alumno o de copia no son válidas.'

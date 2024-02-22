@@ -40,7 +40,9 @@
     <p>Editorial: {{ copia.codigolibro.editorial }}</p>
     <p>Número de Tomo: {{ copia.codigolibro.numerotomo }}</p>
     <p>Características Especiales: {{ copia.codigolibro.caracteristicasespeciales }}</p>
+    <p>Palabras Calve: {{ copia.codigolibro.palabrasclave }}</p>
     <p>Clasificación Dewey: {{ copia.codigolibro.dewy }}</p>
+    <p>Item: {{ copia.codigolibro.item }}</p>
     <p>Publico Dirigido: {{ copia.codigolibro.publicodirigido }}</p>
     <p>Disponible: {% if copia.disponible %}Sí{% else %}No{% endif %}</p>
     {% if not copia.disponible %}

@@ -8,6 +8,7 @@ class Alumno(models.Model):
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
     grupo = models.IntegerField()
+    clase = models.CharField(max_length=10, null=True, blank=True)
     sacalibro = models.BooleanField(default=False)
 
     def __str__(self):
@@ -17,32 +18,36 @@ class Alumno(models.Model):
 class Libro(models.Model):
     codigolibro = models.AutoField(primary_key=True)  # Autogenerar un entero para el código del libro
     titulo = models.CharField(max_length=128)
-    autor = models.CharField(max_length=100)
+    autor = models.CharField(max_length=240)
     ilustrador = models.CharField(max_length=100, null=True, blank=True)
     fechapublicacion = models.IntegerField(null=True, blank=True)
     editorial = models.CharField(max_length=100)
     numerotomo = models.CharField(max_length=100, null=True, blank=True)
     caracteristicasespeciales = models.TextField(null=True, blank=True)
     dewy = models.CharField(max_length=45, null=True, blank=True)  # Cambio de nombre a 'dewy'
+    item = models.CharField(max_length=45, null=True, blank=True)  # Cambio de nombre a 'dewy'
     publicodirigido = models.CharField(max_length=45, null=True, blank=True)
+    palabrasclave = models.TextField(null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.codigolibro} - {self.titulo}"  # Cambio en la representación como cadena
 
 class Prestamo(models.Model):
-    clave_alumno = models.ForeignKey('Alumno', on_delete=models.DO_NOTHING)  
-    clave_copia = models.ForeignKey('Copia', on_delete=models.DO_NOTHING)  
+    clave_alumno = models.ForeignKey('Alumno', on_delete=models.CASCADE)  
+    clave_copia = models.ForeignKey('Copia', on_delete=models.CASCADE)  
     activo = models.BooleanField(default=True)
     regreso = models.DateField(null=True)  # Campo que acepta fecha (día, mes y año)
     fecha_regreso = models.DateField(null=True,blank=True)  # Campo que acepta fecha (día, mes y año)
+    fecha_creacion = models.DateField(null=True,blank=True) # Capo de la fecha que se crea el prestamo
 
     def __str__(self):
         return f"Prestamo de {self.clave_copia} a {self.clave_alumno}"
 
 class Multa(models.Model):
     monto = models.FloatField()  # Campo de tipo double
-    alumno = models.ForeignKey('Alumno', on_delete=models.DO_NOTHING, null=True)  # Campo de referencia a Alumno
-    prestamo = models.ForeignKey('Prestamo', on_delete=models.DO_NOTHING, null=True)  # Campo de referencia a Prestamo
+    alumno = models.ForeignKey('Alumno', on_delete=models.CASCADE, null=True)  # Campo de referencia a Alumno
+    prestamo = models.ForeignKey('Prestamo', on_delete=models.CASCADE, null=True)  # Campo de referencia a Prestamo
     pagado = models.BooleanField(default=False)  # Campo booleano (True/False)
 
     def __str__(self):

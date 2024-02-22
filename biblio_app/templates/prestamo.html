@@ -38,17 +38,19 @@
             <th>Título libro</th>
             <th>Fecha límite</th>
             <th>Fecha regresado</th>
+            <th>Fecha prestamo</th>
           </tr>
         </thead>
         <tbody>
           {% for prestamo in prestamo %}
           <tr>
             <td>{{ prestamo.clave_alumno.clave|stringformat:"05d" }}</td>
-            <td>{{ prestamo.clave_alumno.nombre }} {{ prestamo.clave_alumno.apellido }}</td>
+            <td>{{ prestamo.clave_alumno }} {{prestamo.clave_alumno.grupo}} {{prestamo.clave_alumno.clase}} </td>
             <td>{{ prestamo.clave_copia.clavecopia|stringformat:"06d" }}</td>
             <td>{{ prestamo.clave_copia.codigolibro.titulo }}</td>
             <td>{{ prestamo.regreso }}</td>
             <td>{% if prestamo.fecha_regreso  %} {{ prestamo.fecha_regreso }} {%endif%}</td>
+            <td>{% if prestamo.fecha_creacion  %} {{ prestamo.fecha_creacion }} {%endif%}</td>
           </tr>
           {% endfor %}
         </tbody>
