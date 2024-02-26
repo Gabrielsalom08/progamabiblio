@@ -18,10 +18,18 @@ from django.db.models import CharField, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.db.models import F
-listacopias=[]
+listacopiasfront=[]
+listacopiastras=[]
+listacopiasint=[]
 listacredenciales=[]
 vaciocopias=[]
 vacioalum=[]
+
+class auxiliar:
+    def __init__(self, modelo_existente, campo_auxiliar):
+        self.copia = modelo_existente
+        self.campo_auxiliar = campo_auxiliar
+
 
 def get_server_time(request):
     # Obtiene la hora actual del servidor
@@ -105,6 +113,17 @@ def multas(request):
 
 
 def etiquetas(request):
+    listacopias=[]
+    for i in vaciocopias:
+        listacopias.append(i)
+    
+    for i in listacopiasfront:
+        listacopias.append(i)
+    for i in listacopiasint:
+        listacopias.append(i)
+    for i in listacopiastras:
+        listacopias.append(i)
+    print(listacopias)
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias, "vacios":vaciocopias})
 def credenciales(request):
     return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales,"vacios":vacioalum})
@@ -817,14 +836,60 @@ def agregar_copia_todos(request):
             copia_existente = Copia.objects.filter(clavecopia=clave_copia).first()
             if copia_existente:
                 # Si existe, agregarla a la lista global
-                listacopias.append(copia_existente)
+                copia_front=auxiliar(copia_existente,1)
+                copia_tras=auxiliar(copia_existente,2)
+                copia_int=auxiliar(copia_existente,3)
+                listacopiasfront.append(copia_front)
+                listacopiastras.append(copia_tras)
+                listacopiasint.append(copia_int)
     return redirect('/etiqueta')
+def agregar_copia_int(request):
+    if request.method == 'POST':
+        copia = request.POST.get('copia')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            # Verificar si ya existe una copia asociada a esa clave
+            copia_existente = Copia.objects.filter(clavecopia=clave_copia).first()
+            if copia_existente:
+                # Si existe, agregarla a la lista global
+                copia_int=auxiliar(copia_existente,3)
+                listacopiasint.append(copia_int)
+    return redirect('/etiqueta')
+
+def agregar_copia_front(request):
+    if request.method == 'POST':
+        copia = request.POST.get('copia')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            # Verificar si ya existe una copia asociada a esa clave
+            copia_existente = Copia.objects.filter(clavecopia=clave_copia).first()
+            if copia_existente:
+                # Si existe, agregarla a la lista global
+                copia_front=auxiliar(copia_existente,1)
+                listacopiasfront.append(copia_front)
+    return redirect('/etiqueta')
+
+def agregar_copia_tras(request):
+    if request.method == 'POST':
+        copia = request.POST.get('copia')
+        if copia.isdigit():
+            clave_copia = int(copia)
+            # Verificar si ya existe una copia asociada a esa clave
+            copia_existente = Copia.objects.filter(clavecopia=clave_copia).first()
+            if copia_existente:
+                # Si existe, agregarla a la lista global
+                copia_tras=auxiliar(copia_existente,2)
+                listacopiastras.append(copia_tras)
+    return redirect('/etiqueta')
+
 
 # Vista para vaciar lista
 def vaciar_lista(request):
     if request.method == 'POST':
-        listacopias.clear()
         vaciocopias.clear()
+        listacopiasfront.clear()
+        listacopiastras.clear()
+        listacopiasint.clear()
         return redirect('/etiqueta')  # Redirigir a donde desees después de vaciar la lista
     return redirect('/etiqueta')  # Renderizar tu template
 
@@ -848,10 +913,23 @@ def vaciar_lista_alum(request):
         return redirect('/credencial')
     return redirect('/credencial')
 
-def quitar_registro(request, copia_id):
-    # Encuentra el objeto copia por su ID
-    copia = Copia.objects.get(clavecopia=copia_id)
-    listacopias.remove(copia)
+def quitar_registro_front(request, copia_id):
+    for instance in listacopiastras:
+        if instance.copia == copia_id:
+            listacopiasfront.remove(instance)
+            break
+    return redirect('/etiqueta')
+def quitar_registro_back(request, copia_id):
+    for instance in listacopiastras:
+        if instance.copia == copia_id:
+            listacopiastras.remove(instance)
+            break
+    return redirect('/etiqueta')
+def quitar_registro_int(request, copia_id):
+    for instance in listacopiastras:
+        if instance.copia == copia_id:
+            listacopiasint.remove(instance)
+            break
     return redirect('/etiqueta')
 def quitar_registro_alum(request, alumno_id):
     # Encuentra el objeto copia por su ID
@@ -876,5 +954,6 @@ def agregar_copia_vacia(request):
             clave_copia = int(copia)
             vaciocopias.clear()
             for i in range(clave_copia):
-                vaciocopias.append(" ")
+                vacio= auxiliar("",0)
+                vaciocopias.append(vacio)
     return redirect('/etiqueta')

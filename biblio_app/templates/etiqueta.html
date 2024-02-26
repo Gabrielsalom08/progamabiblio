@@ -65,13 +65,17 @@
 
 </style>
 
-<form method="POST" style="margin-left: 150px; margin-top: 20px;" action="{% url 'agregar_copia' %}">
+<form method="POST" style="margin-left: 150px; margin-top: 20px;">
     {% csrf_token %}
-    <div class="input-group mb-3"  style="max-width: 600px;">
+    <div class="input-group mb-3" style="max-width: 600px;">
         <input type="text" name="copia" class="form-control" placeholder="Ingrese la copia">
-        <button type="submit" class="btn btn-success">Agregar copia asociada a esa clave</button>
     </div>
+    <button type="submit" formaction="{% url 'agregar_copia_todos' %}" class="btn btn-primary">Agregar copia todos</button>
+    <button type="submit" formaction="{% url 'agregar_copia_fron' %}" class="btn btn-primary">Agregar copia fron</button>
+    <button type="submit" formaction="{% url 'agregar_copia_tras' %}" class="btn btn-primary">Agregar copia tras</button>
+    <button type="submit" formaction="{% url 'agregar_copia_int' %}" class="btn btn-primary">Agregar copia int</button>
 </form>
+
 <form method="POST" style="margin-left: 150px; margin-top: 20px;" action="{% url 'agregar_copia_vacio' %}">
     {% csrf_token %}
     <div class="input-group mb-3"  style="max-width: 600px;">
@@ -90,69 +94,61 @@
 <button onclick="window.print()" style="margin-left: 150px; margin-top: 20px;" class="btn btn-success">Imprimir tabla</button>
 <center>
     <table class="print-table">
-        {% for vacio in vacios %}
-        <tr>
-            <td>
-                <!-- Celda 1: Código de barras, clave de copia y título asociado -->
-                
-            </td>
-            <td>
-                <!-- Celda 2: Clave de libro/copía, código Dewey y autor -->
-               
-            </td>
-            <td>
-               
-            </td>
-            <td class="hidden-on-print">
-                
-            </td>
-        </tr>    
+        <tbody>
+            {% for lista in lista %}
+            {% if forloop.counter0|divisibleby:3 %}
+                <tr>
+            {% endif %}
+            {% if lista.campo_auxiliar == 0 %}
+                <td></td>
+            {% else %}
+                {% if lista.campo_auxiliar == 1 %}
+                <td>
+                    <!-- Celda 1: Código de barras, clave de copia y título asociado frontal -->
+                    <div>
+                        <!-- Código de barras -->
+                        <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{lista.copia.clavecopia | stringformat:"06d"}}</span>
+                        <!-- Título asociado -->
+                        <p>{{ lista.copia.codigolibro.titulo }}</p>
+                    </div>
+                </td>
+                {% else %}
+                    {% if lista.campo_auxiliar == 2 %}
+                    <td>
+                        <!-- Celda 2: Clave de libro/copía, código Dewey y autor -->
+                        <div>
+                            <!-- Clave de libro/copía -->
+                            <p>{{ lista.copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ lista.copia.clavecopia | stringformat:"06d" }}</p>
+                            <!-- Código Dewey -->
+                            <p>{{ lista.copia.codigolibro.dewy }} </p>
+                            <!-- Item -->
+                            <p>{{ lista.copia.codigolibro.item }}</p>
+                            <!--Numero de tomo-->
+                            <p>{%if lista.copia.codigolibro.tomo%}{{lista.copia.codigolibro.tomo}}{%endif%}</p>
+                        </div>
+                    </td>
+                    {% else %}
+                    <td>
+                        <!-- Celda 3: Clave de libro/copía, código Dewey y autor -->
+                        <div>
+                            <!-- Clave de libro/copía -->
+                            <p>{{ lista.copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ lista.copia.clavecopia | stringformat:"06d" }}</p>
+                            <!-- Código Dewey -->
+                            <p>{{ lista.copia.codigolibro.dewy }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ lista.copia.codigolibro.autor }}</p>
+        
+                            <!-- Primeros 3 caracteres del autor -->
+                            <p>{{ lista.copia.codigolibro.item }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ lista.copia.codigolibro.titulo }}</p>
+                        </div>
+                    </td>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            {% if forloop.counter|divisibleby:3 or forloop.last %}
+                </tr>
+            {% endif %}
         {% endfor %}
-        {% for copia in lista %}
-        <tr>
-            <td>
-                <!-- Celda 1: Código de barras, clave de copia y título asociado frontal -->
-                <div>
-                    <!-- Código de barras -->
-                    <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{copia.clavecopia | stringformat:"06d"}}</span>
-                    <!-- Título asociado -->
-                    <p>{{ copia.codigolibro.titulo }}</p>
-                </div>
-            </td>
-            <td>
-                <!-- Celda 2: Clave de libro/copía, código Dewey y autor -->
-                <div>
-                    <!-- Clave de libro/copía -->
-                    <p>{{ copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ copia.clavecopia | stringformat:"06d" }}</p>
-                    <!-- Código Dewey -->
-                    <p>{{ copia.codigolibro.dewy }} </p>
-                    <!-- Item -->
-                    <p>{{ copia.codigolibro.item }}</p>
-                    <!--Numero de tomo-->
-                    <p>{%if copia.codigolibro.tomo%}{{copia.codigolibro.tomo}}{%endif%}</p>
-                </div>
-            </td>
-            <td>
-                <!-- Celda 3: Clave de libro/copía, código Dewey y autor -->
-                <div>
-                    <!-- Clave de libro/copía -->
-                    <p>{{ copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ copia.clavecopia | stringformat:"06d" }}</p>
-                    <!-- Código Dewey -->
-                    <p>{{ copia.codigolibro.dewy }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ copia.codigolibro.autor }}</p>
-
-                    <!-- Primeros 3 caracteres del autor -->
-                    <p>{{ copia.codigolibro.item }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ copia.codigolibro.titulo }}</p>
-                </div>
-            </td>
-            <td class="hidden-on-print">
-                <!-- Celda 4: Botón para quitar registro -->
-                <form method="POST" action="{% url 'quitar_registro' copia.clavecopia %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Quitar registro</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
+        
+        </tbody>
     </table>
 </center>
 <script>
