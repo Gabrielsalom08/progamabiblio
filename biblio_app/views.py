@@ -808,7 +808,7 @@ def exportar_excel_prestamos_alumno(request):
     return response
 
 # Vista para agregar copia
-def agregar_copia(request):
+def agregar_copia_todos(request):
     if request.method == 'POST':
         copia = request.POST.get('copia')
         if copia.isdigit():
