@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block main_content %}
-<div class="col-md-8 mx-auto my-4">
+<div class="col-md-10 mx-auto my-4">
     <div class="row">
         <nav class="navbar bg-body-light">
             <div class="container-fluid justify-content-center align-items-center">
@@ -21,16 +21,15 @@
             <h6> Para mostrar todos los libros despues de una busqueda realiza una busqueda sin contenido o apreta el boton de busqueda otra vez</h6>
             <p>{{ copias|length }} copias registradas</p>
         </div>
-        <div class="row mt-4">
-            <div class="container" style="overflow-y:auto;">
-                <table class="table table-hover">
+        <div class="container-fluid">
+            <div class="container-fluid table-responsive" style="overflow-y:auto; overflow-x: auto;" >
+                <table class="table table-hover" style="width: 90%;">
                     <thead>
                         <th>Codigo de Copia</th>
                         <th>Titulo del Libro</th>
                         <th>Autor</th>
-                        <th>Ilustrador</th>
                         <th>Editorial</th>
-                        <th>Clasificacion Dewey</th>
+                        <th>Clasificacion  y item</th>
                         <th>Disponible</th>
                         <th>Mas Infromación</th>
                         {% if user.is_authenticated %}
@@ -43,9 +42,8 @@
                                 <td>{{ copia.clavecopia|stringformat:"06d" }}</td>
                                 <td>{{ copia.codigolibro.titulo }}</td>
                                 <td>{{ copia.codigolibro.autor }}</td>
-                                <td>{{ copia.codigolibro.ilustrador }}</td>
                                 <td>{{ copia.codigolibro.editorial }}</td>
-                                <td>{{ copia.codigolibro.dewy }}</td>
+                                <td>{{ copia.codigolibro.dewy }} {% if copia.codigolibro.item %} {{copia.codigolibro.item}} {%endif%}</td>
                                 <td>{% if copia.disponible %}Disponible{% else %} No - {{ copia.clavealumno.clave|stringformat:"05d" }}{% endif %}</td>
                                 <td style="text-align: center;">
                                     <a href="{% url 'busqueda_detalle' clavecopia=copia.clavecopia %}" class="btn btn-success"><i class="bi bi-pencil"></i>+</a>
@@ -91,7 +89,7 @@
     $(document).ready( function () {
         $('.table').DataTable({
             "paging": true,
-            "pageLength": 10 // Mostrar solo 30 elementos por página
+            "pageLength": 25 // Mostrar solo 30 elementos por página
         });
     });
 </script>

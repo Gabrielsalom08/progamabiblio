@@ -14,8 +14,10 @@ from django.http import JsonResponse
 from django.utils import timezone
 from openpyxl import Workbook
 from django.http import JsonResponse
+from django.db.models import CharField, Value
+from django.db.models.functions import Concat
 from django.utils import timezone
-
+from django.db.models import F
 listacopias=[]
 listacredenciales=[]
 vaciocopias=[]
@@ -33,6 +35,8 @@ def get_server_time(request):
 # Create your views here.
 def inicio(request):
     return render(request,"inicio.html",context={"current_tab": "inicio"})
+
+
 def prestamos(request):
     query = request.GET.get('q')
     if query:
@@ -45,13 +49,17 @@ def prestamos(request):
         prestamo = Prestamo.objects.filter(
             Q(clave_alumno__clave__icontains=query) |
             Q(clave_copia__clave__icontains=query)
-        ).distinct().order_by('-pk')
+        ).distinct()
     else:
         # Si no hay búsqueda, mostrar todos los prestamos
-        prestamo = Prestamo.objects.all().order_by('-pk')
+        prestamo = Prestamo.objects.all()
 
-    # Devolver una respuesta con la lista de prestamos
-    return render(request,"prestamo.html",context={"current_tab": "prestamo", "prestamo": prestamo})
+    # Ordenar los préstamos del más nuevo al más antiguo
+    prestamo = prestamo.order_by(F('fecha_creacion').desc(nulls_last=True))
+
+    # Devolver una respuesta con la lista de préstamos ordenados
+    return render(request, "prestamo.html", context={"current_tab": "prestamo", "prestamo": prestamo})
+
 
 def retornos(request):
     query = request.GET.get('q')
@@ -85,14 +93,16 @@ def multas(request):
         # Realizar la búsqueda utilizando el campo 'clave alumno o clave copia'
         multas = Multa.objects.filter(
             Q(clave_alumno_clave__icontains=query) &
-            Q(pagado =False) 
+            Q(pagado=False) &
+            Q(monto__gt=10)  # Filtrar multas con monto mayor a 10
         ).distinct()
     else:
         # Si no hay búsqueda, mostrar todos los préstamos activos
-        multas = Multa.objects.filter(pagado=False)
+        multas = Multa.objects.filter(pagado=False, monto__gt=9)  # Filtrar multas con monto mayor a 10
 
     # Devolver una respuesta con la lista de préstamos
-    return render(request,"multas.html",context={"current_tab": "multa", "multas": multas})
+    return render(request, "multas.html", context={"current_tab": "multa", "multas": multas})
+
 
 def etiquetas(request):
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias, "vacios":vaciocopias})
@@ -123,14 +133,18 @@ def alumno_pest(request):
             query = str(int(query))
         
         # Realizar la búsqueda utilizando el campo 'nombre', 'apellido', 'clave' o 'grupo'
-        alumnos = Alumno.objects.filter(
+        alumnos = Alumno.objects.annotate(
+            nombre_apellido=Concat('nombre', Value(' '), 'apellido', output_field=CharField()),
+            grado_grupo=Concat('grupo','clase',output_field=CharField()),
+        ).filter(
             Q(nombre__icontains=query) |
             Q(apellido__icontains=query) |
-            Q(nombre__icontains=query.split()[0]) &  # Buscar el primer nombre
-            Q(apellido__icontains=query.split()[-1]) |  # Buscar el último apellido
             Q(clave__icontains=query) |
-            Q(grupo__icontains=query)
+            Q(grupo__icontains=query) |
+            Q(grado_grupo__icontains=query) |
+            Q(nombre_apellido__icontains=query)  # Buscar en el campo combinado de nombre y apellido
         ).distinct()
+        
     else:
         # Si no hay búsqueda, mostrar todos los alumnos
         alumnos = Alumno.objects.all()
@@ -145,6 +159,7 @@ def agregar_alum(request):
         nombre = request.POST.get('nombre')
         apellido = request.POST.get('apellido')
         grupo = request.POST.get('grupo')
+        clase= request.POST.get('clase','')
 
         # Verificar si los campos obligatorios no están vacíos
         if not nombre or not apellido or not grupo:
@@ -152,7 +167,7 @@ def agregar_alum(request):
 
         try:
             # Intentar crear una instancia de Alumno con los datos proporcionados
-            alumno_item = Alumno(nombre=nombre, apellido=apellido, grupo=grupo)
+            alumno_item = Alumno(nombre=nombre, apellido=apellido, grupo=grupo,clase=clase)
             alumno_item.full_clean()  # Validar los datos del modelo
             alumno_item.save()  # Guardar el objeto en la base de datos
             return redirect('/alumno')
@@ -173,6 +188,7 @@ def editar_alumno(request, pk):
         alumno_obj.nombre = request.POST['nombre']
         alumno_obj.apellido = request.POST['apellido']
         alumno_obj.grupo = request.POST['grupo']
+        alumno_obj.clase = request.POST['clase']
         alumno_obj.save()
         return redirect('/alumno')
 
@@ -193,7 +209,7 @@ def cargar_desde_excel(request):
         excel_file = request.FILES['excel_file']
         df = pd.read_excel(excel_file)
 
-        required_columns = ['nombre', 'apellido', 'grupo']
+        required_columns = ['nombre', 'apellido', 'grado']
         missing_columns = [col for col in required_columns if col not in df.columns]
 
         if missing_columns:
@@ -211,7 +227,8 @@ def cargar_desde_excel(request):
                 clave=clave,
                 nombre=row['nombre'],
                 apellido=row['apellido'],
-                grupo=row['grupo'],
+                grupo=row['grado'],
+                clase=row.get('grupo', None),
             )
 
             try:
@@ -227,6 +244,11 @@ def cargar_desde_excel(request):
 
 def borrar_todos_los_alumnos(request):
     try:
+        # Verificar si existen alumnos con grupo igual a 6 y sacalibro verdadero
+        if Alumno.objects.filter(grupo=6, sacalibro=True).exists():
+            # Si existen, lanzar un error
+              return render(request, 'error.html', {'mensaje': 'Existen alumnos de 6to con préstamos activos. Favor de completar estos préstamos para realizar el proceso de final de año.'})
+       
         # Eliminar todos los alumnos con un valor de grupo de 6 o superior
         Alumno.objects.filter(grupo__gte=6).delete()
         
@@ -239,7 +261,7 @@ def borrar_todos_los_alumnos(request):
     except ValidationError as e:
         # Si se produce una excepción de validación, mostrar un mensaje de error
         return render(request, 'error.html', {'mensaje': '; '.join(e.messages)})
-
+    
 def libros_pest(request):
     query = request.GET.get('q')
     if query:
@@ -252,7 +274,8 @@ def libros_pest(request):
             Q(codigolibro__icontains=query) |
             Q(titulo__icontains=query) |
             Q(autor__icontains=query) |
-            Q(editorial__icontains=query)
+            Q(editorial__icontains=query)|
+            Q(palabrasclave__icontains=query)
         )
     else:
         libros = Libro.objects.all()
@@ -278,8 +301,10 @@ def agregar_libros(request):
                 publicodirigido=request.POST.get('publico', ''),
                 fechapublicacion=fechapubl,
                 caracteristicasespeciales=request.POST.get('caracteristicas', ''),
-                ilustrador=request.POST.get('ilustrador','')
-            )
+                ilustrador=request.POST.get('ilustrador',''),
+                palabrasclave=request.POST.get('clave',''),
+                item=request.POST.get('item','')
+                )
             libro_item.full_clean()  # Realiza todas las validaciones del modelo
             libro_item.save()
             return redirect('/libro')
@@ -335,6 +360,8 @@ def editar_libro(request, codigolibro):
         libro_obj.caracteristicasespeciales = request.POST.get('caracteristicasespeciales', None)
         libro_obj.dewy = request.POST.get('ubicacionbiblio', None)
         libro_obj.publicodirigido = request.POST.get('publicodirigido', None)
+        libro_obj.palabrasclave = request.POST.get('clave', None)
+        libro_obj.item = request.POST.get('item', None)
 
         # Obtener el valor de fechapublicacion del formulario
         fechapublicacion = request.POST.get('fechapublicacion')
@@ -403,6 +430,8 @@ def cargar_desde_excel_libro(request):
                     caracteristicasespeciales=row.get('caracteristicas', None),
                     dewy=row.get('ubicacionbiblio', None),
                     publicodirigido=row.get('publico', None),
+                    item=row.get('item', None),
+                    palabrasclave=row.get('palabras_clave', None),
                 )
 
                 try:
@@ -441,7 +470,7 @@ def busqueda_pest(request):
             # Eliminar los ceros a la izquierda en el caso de que existan
             query = str(int(query))
     if query:
-        copias = Copia.objects.filter(Q(clavecopia__icontains=query) | Q(codigolibro__titulo__icontains=query) | Q(codigolibro__autor__icontains=query) | Q(codigolibro__editorial__icontains=query) | Q(codigolibro__ilustrador__icontains=query))
+        copias = Copia.objects.filter(Q(clavecopia__icontains=query) | Q(codigolibro__titulo__icontains=query) | Q(codigolibro__autor__icontains=query) | Q(codigolibro__editorial__icontains=query) | Q(codigolibro__ilustrador__icontains=query)|Q(codigolibro__palabrasclave__icontains=query))
     else:
         # Si no hay búsqueda, muestra todas las copias
         copias = Copia.objects.all()
@@ -527,13 +556,14 @@ def nuevo_prestamo(request):
             alumno = Alumno.objects.get(clave=clave_alumno)
             copia = Copia.objects.get(clavecopia=clave_copia)
 
-            if not alumno.sacalibro and copia.disponible:
+            if copia.disponible:
                 prestamo = Prestamo.objects.create(
                     clave_alumno=alumno,
                     clave_copia=copia,
                     activo=True,
                     regreso=datetime.now() + timedelta(days=7),
-                    fecha_regreso=None
+                    fecha_regreso=None,
+                    fecha_creacion = datetime.now()
                 )
 
                 # Modificar disponibilidad de copia y clave de alumno en la copia
@@ -547,7 +577,7 @@ def nuevo_prestamo(request):
 
                 return redirect('/prestamo')
             else:
-                error_message = 'El alumno ya tiene un libro sacado o la copia no está disponible.'
+                error_message = 'La copia no está disponible.'
                 return render(request, 'error.html', {'mensaje': error_message})
         except (Alumno.DoesNotExist, Copia.DoesNotExist):
             error_message = 'La clave de alumno o de copia no son válidas.'

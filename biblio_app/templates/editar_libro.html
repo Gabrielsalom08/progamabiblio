@@ -65,8 +65,12 @@
     <input type="text" name="caracteristicasespeciales" value="{{ libro.caracteristicasespeciales|default_if_none:'' }}"><br>
     <label for="ubicacionbiblio">Clasificación Dewey:</label>
     <input type="text" name="ubicacionbiblio" value="{{ libro.dewy|default_if_none:'' }}"><br>
+    <label for="item">Item :</label>
+    <input type="text" name="item" value="{{ libro.item|default_if_none:'' }}"><br>
     <label for="publicodirigido">Público Dirigido:</label>
-    <input type="text" name="publicodirigido" value="{{ libro.publicodirigido|default_if_none:'' }}"><br>
+    <input type="textform" name="publicodirigido" value="{{ libro.publicodirigido|default_if_none:'' }}"><br>
+    <label for="publicodirigido">Palabras Clave:</label>
+    <input type="textform" name="clave" value="{{ libro.palabrasclave|default_if_none:'' }}"><br>
 
     <button type="submit" class="btn btn-primary" style="margin-bottom: 200px;">Guardar cambios</button>
 </form>

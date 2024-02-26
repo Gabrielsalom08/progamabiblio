@@ -45,12 +45,20 @@
                         <td><input type="text" class="form-control" name="ubicacion"></td>
                     </tr>
                     <tr>
+                        <td style="text-align:left; vertical-align:middle; padding-left:15px;">Item : </td>
+                        <td><input type="text" class="form-control" name="item"></td>
+                    </tr>
+                    <tr>
                         <td style="text-align:left; vertical-align:middle; padding-left:15px;">Publico dirigido : </td>
                         <td><input type="text" class="form-control" name="publico"></td>
                     </tr>
                     <tr>
                         <td style="text-align:left; vertical-align:middle; padding-left:15px;">Fecha publicacion : </td>
                         <td><input type="number" class="form-control" name="fechapubl"></td>  <!-- Cambiado a input type="number" -->
+                    </tr>
+                    <tr>
+                        <td style="text-align:left; vertical-align:middle; padding-left:15px;">Palabras clave : </td>
+                        <td><textarea class="form-control" name="clave"></textarea></td>
                     </tr>
                     <tr>
                         <td style="text-align:left; vertical-align:middle; padding-left:15px;">Caracteristicas Especiales : </td>
@@ -133,7 +141,7 @@
                                 <td>{{ libro.titulo }}</td>
                                 <td>{{ libro.autor }}</td>
                                 <td>{{ libro.editorial }}</td>
-                                <td>{{ libro.fechapublicacion }}</td>
+                                <td>{% if libro.fechapublicacion %}{{ libro.fechapublicacion }} {%endif%}</td>
                                 <td>{{ libro.ilustrador }}</td>
                                 <td>
                                     {% if user.is_authenticated %}

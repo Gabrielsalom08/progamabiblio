@@ -32,6 +32,10 @@
                         <td style="text-align:left; vertical-align:middle; padding-left:15px;">Año : </td>
                         <td><input type="text" class="form-control" name="grupo"></td>
                     </tr>
+                    <tr>
+                        <td style="text-align:left; vertical-align:middle; padding-left:15px;">Grupo : </td>
+                        <td><input type="text" class="form-control" name="clase"></td>
+                    </tr>
                     {% if user.is_authenticated %}
                     <tr>
                         <td colspan="2" style="align-items: center; align-self: center;"><button class="btn btn-primary" type="submit" style="align-self: center;"> Agregar alumno</button></td>
@@ -60,7 +64,7 @@
                 </form>
             </div>
             </nav>
-            <h6> Para mostrar todos los alumnos de preprimaria solo busca "0"</h6>
+            <h6> Para buscar a prepimaria busca 0 segiodo por el grupo ejemplo "0A" para buscar a PFA</h6>
             <h6> Para mostrar todos los alumnos despues de una busqueda realiza una busqueda sin contenido o apreta el boton de alumnos otra vez</h6>
             <div class="row" style="margin-top: 20 px;">
                 <form method="post" action="{% url 'exportar_excel_alumnos' %}">
@@ -89,9 +93,9 @@
             <td>{{ alumno.apellido }}</td>
             <td>
                 {% if alumno.grupo == 0 %}
-                    PF
+                    PF {{alumno.clase}}
                 {% else %}
-                    {{ alumno.grupo }}
+                    {{ alumno.grupo }}{{alumno.clase}}
                 {% endif %}
             </td>
             <td>

@@ -111,7 +111,7 @@
         {% for copia in lista %}
         <tr>
             <td>
-                <!-- Celda 1: Código de barras, clave de copia y título asociado -->
+                <!-- Celda 1: Código de barras, clave de copia y título asociado frontal -->
                 <div>
                     <!-- Código de barras -->
                     <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{copia.clavecopia | stringformat:"06d"}}</span>
@@ -125,9 +125,11 @@
                     <!-- Clave de libro/copía -->
                     <p>{{ copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ copia.clavecopia | stringformat:"06d" }}</p>
                     <!-- Código Dewey -->
-                    <p>{{ copia.codigolibro.dewy }}</p>
-                    <!-- Primeros 3 caracteres del autor -->
-                    <p>{{ copia.codigolibro.autor|slice:":3" }}</p>
+                    <p>{{ copia.codigolibro.dewy }} </p>
+                    <!-- Item -->
+                    <p>{{ copia.codigolibro.item }}</p>
+                    <!--Numero de tomo-->
+                    <p>{%if copia.codigolibro.tomo%}{{copia.codigolibro.tomo}}{%endif%}</p>
                 </div>
             </td>
             <td>
@@ -139,7 +141,7 @@
                     <p>{{ copia.codigolibro.dewy }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ copia.codigolibro.autor }}</p>
 
                     <!-- Primeros 3 caracteres del autor -->
-                    <p>{{ copia.codigolibro.autor|slice:":3" }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ copia.codigolibro.titulo }}</p>
+                    <p>{{ copia.codigolibro.item }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ copia.codigolibro.titulo }}</p>
                 </div>
             </td>
             <td class="hidden-on-print">
