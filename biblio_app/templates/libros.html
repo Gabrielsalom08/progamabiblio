@@ -141,7 +141,7 @@
                                 <td>{{ libro.titulo }}</td>
                                 <td>{{ libro.autor }}</td>
                                 <td>{{ libro.editorial }}</td>
-                                <td>{{ libro.fechapublicacion }}</td>
+                                <td>{% if libro.fechapublicacion %}{{ libro.fechapublicacion }} {%endif%}</td>
                                 <td>{{ libro.ilustrador }}</td>
                                 <td>
                                     {% if user.is_authenticated %}

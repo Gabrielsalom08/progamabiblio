@@ -47,13 +47,6 @@
   </div>  
   </form>
 
-  <form method="POST" action="{% url 'agregar_alumno_vacio' %}" style="margin-left: 150px; margin-top: 20px;">
-    {% csrf_token %}
-    <div class="input-group mb-3"  style="max-width: 600px;">
-    <input type="text" class="form-control" name="alumno" placeholder="Ingrese numero de etiquetas vacias">
-    <button type="submit" class="btn btn-success">Celdas Vacias a agregar</button>
-  </div>  
-  </form>
 
   <!-- Botón para vaciar lista -->
   <form method="POST" action="{% url 'vaciar_lista_alum' %} " style="margin-left: 150px; margin-top: 20px;">
@@ -63,102 +56,43 @@
   <button onclick="window.print()" style="margin-left: 150px; margin-top: 20px;" class="btn btn-success">Imprimir tabla</button>
   <center>
   <table class="print-table" style="border-collapse: collapse; width: 20cm; height: 7.5cm; margin: 3mm;">
-   {% for  vacio in vacios %}
-   {% if forloop.counter0|divisibleby:2 %}
-   <tr >
+    {% for alumno in lista %}
+    {% if forloop.counter0|divisibleby:2 %}
+    <tr>
+    <!-- Si la posición del elemento es par -->
     <td style="max-width: 6.7cm; max-height: 2.5cm; border: 1px solid black;">
-      </td>
-  {% else %}
-  <!-- Si la posición del elemento es impar -->
-  <td style="max-width: 6.7cm; max-height: 2.5cm; border: 1px solid black;">
-         
-      </td>
-  </tr>
-  {% endif %}
-  {% if forloop.last %}
-  {% if forloop.counter0|divisibleby:2 %}
-  
-  {% for alumno in lista %}
-  {% if forloop.counter0|divisibleby:2 %}
-  <!-- Si la posición del elemento es par -->
-  <td style="max-width: 6.7cm; max-height: 2.5cm; border: 1px solid black;">
-    <!-- Celda 1: Código de barras, clave de copia y título asociado -->
-    <div style="text-align: center;">
-        <p>{{ alumno }}</p>
-        <!-- Código de barras -->
-        <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{alumno.clave | stringformat:"05d"}}</span>
-        <form method="POST" action="{% url 'quitar_registro_alumno' alumno.clave %}" class="hidden-on-print">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger">Quitar</button>
-      </form>
-    </div>
-</td>
-</tr>
-  
-  {% else %}
-  <!-- Si la posición del elemento es impar -->
-  <tr >
-    <td style="max-width: 6.7cm; max-height: 2.5cm; border: 1px solid black;">
-          <!-- Celda 1: Código de barras, clave de copia y título asociado -->
-          <div style="text-align: center;">
-              <p>{{ alumno }}</p>
-              <!-- Código de barras -->
-              <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{alumno.clave | stringformat:"05d"}}</span>
-              <form method="POST" action="{% url 'quitar_registro_alumno' alumno.clave %}" class="hidden-on-print">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Quitar</button>
-            </form>
-          </div>
-      </td>
-  {% endif %}
-  {% if forloop.last %}
-      </tr>
-  {% endif %}
-  {% endfor %}
-
-  
-  {% else %}
-
-  {% for alumno in lista %}
-  {% if forloop.counter0|divisibleby:2 %}
-  <!-- Si la posición del elemento es par -->
-  <tr >
-    <td style="max-width: 6.7cm; max-height: 2.5cm; border: 1px solid black;">
-          <!-- Celda 1: Código de barras, clave de copia y título asociado -->
-          <div style="text-align: center;">
-              <p>{{ alumno }}</p>
-              <!-- Código de barras -->
-              <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{alumno.clave | stringformat:"05d"}}</span>
-              <form method="POST" action="{% url 'quitar_registro_alumno' alumno.clave %}" class="hidden-on-print">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Quitar</button>
-            </form>
-          </div>
-      </td>
-  {% else %}
-  <!-- Si la posición del elemento es impar -->
-  <td style="max-width: 6.7cm; max-height: 2.5cm; border: 1px solid black;">
-          <!-- Celda 1: Código de barras, clave de copia y título asociado -->
-          <div style="text-align: center;">
-              <p>{{ alumno }}</p>
-              <!-- Código de barras -->
-              <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{alumno.clave | stringformat:"05d"}}</span>
-              <form method="POST" action="{% url 'quitar_registro_alumno' alumno.clave %}" class="hidden-on-print">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Quitar</button>
-            </form>
-          </div>
-      </td>
-  </tr>
-  {% endif %}
-  {% if forloop.last %}
-      </tr>
-  {% endif %}
-  {% endfor %}
-  
-  {% endif %}
-  {% endif %}
-   {% endfor %}
+      <!-- Celda 1: Código de barras, clave de copia y título asociado -->
+      <div style="text-align: center;">
+          <p>{{ alumno }}</p>
+          <!-- Código de barras -->
+          <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{alumno.clave | stringformat:"05d"}}</span>
+          <form method="POST" action="{% url 'quitar_registro_alumno' alumno.clave %}" class="hidden-on-print">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Quitar</button>
+        </form>
+      </div>
+  </td>
+    
+    {% else %}
+    <!-- Si la posición del elemento es impar -->
+      <td style="max-width: 6.7cm; max-height: 2.5cm; border: 1px solid black;">
+            <!-- Celda 1: Código de barras, clave de copia y título asociado -->
+            <div style="text-align: center;">
+                <p>{{ alumno }}</p>
+                <!-- Código de barras -->
+                <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{alumno.clave | stringformat:"05d"}}</span>
+                <form method="POST" action="{% url 'quitar_registro_alumno' alumno.clave %}" class="hidden-on-print">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">Quitar</button>
+              </form>
+            </div>
+        </td>
+        </tr>
+    {% endif %}
+    {% if forloop.last %}
+        </tr>
+    {% endif %}
+    {% endfor %}
 </table>
 </center>
 <script>
