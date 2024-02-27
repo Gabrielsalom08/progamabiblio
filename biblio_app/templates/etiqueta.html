@@ -70,17 +70,18 @@
     <div class="input-group mb-3" style="max-width: 600px;">
         <input type="text" name="copia" class="form-control" placeholder="Ingrese la copia">
     </div>
-    <button type="submit" formaction="{% url 'agregar_copia_todos' %}" class="btn btn-primary">Agregar copia todos</button>
-    <button type="submit" formaction="{% url 'agregar_copia_fron' %}" class="btn btn-primary">Agregar copia fron</button>
-    <button type="submit" formaction="{% url 'agregar_copia_tras' %}" class="btn btn-primary">Agregar copia tras</button>
-    <button type="submit" formaction="{% url 'agregar_copia_int' %}" class="btn btn-primary">Agregar copia int</button>
+    <button type="submit" formaction="{% url 'agregar_copia_todos' %}" class="btn btn-primary">Todas las etiquetas</button>
+    <button type="submit" formaction="{% url 'agregar_copia_fron' %}" class="btn btn-primary">Solo etiquta delantera</button>
+    <button type="submit" formaction="{% url 'agregar_copia_tras' %}" class="btn btn-primary">Solo etiqueta trasera</button>
+    <button type="submit" formaction="{% url 'agregar_copia_int' %}" class="btn btn-primary">Solo etiqueta interior</button>
 </form>
 
 <form method="POST" style="margin-left: 150px; margin-top: 20px;" action="{% url 'agregar_copia_vacio' %}">
     {% csrf_token %}
     <div class="input-group mb-3"  style="max-width: 600px;">
-        <input type="text" name="copia" class="form-control" placeholder="Ingrese numero de renglones vacios">
-        <button type="submit" class="btn btn-success">Agregar renglones vacios</button>
+        <input type="text" name="copia" class="form-control" placeholder="Ingrese numero de etiquetas vacias">
+        <button type="submit" class="btn btn-success">Agregar etiquetas vacias</button>
+        <p>El numero de etiquetas vacias se sobreescribe asi que si ya introduciste un numero y necesitas eliminar las etiquetas vacias solo pon 0 o si necesitas un numero diferente solo introduce el numero correcto</p>
     </div>
 </form>
 
@@ -110,6 +111,12 @@
                         <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{lista.copia.clavecopia | stringformat:"06d"}}</span>
                         <!-- Título asociado -->
                         <p>{{ lista.copia.codigolibro.titulo }}</p>
+                        <center>
+                        <form method="POST" action="{% url 'quitar_registro_fron' lista.copia.clavecopia %}" class="hidden-on-print" >
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">X</button>
+                        </form>
+                    </center>
                     </div>
                 </td>
                 {% else %}
@@ -125,6 +132,12 @@
                             <p>{{ lista.copia.codigolibro.item }}</p>
                             <!--Numero de tomo-->
                             <p>{%if lista.copia.codigolibro.tomo%}{{lista.copia.codigolibro.tomo}}{%endif%}</p>
+                            <center>
+                            <form method="POST" action="{% url 'quitar_registro_tras' lista.copia.clavecopia %}" class="hidden-on-print">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">X</button>
+                            </form>
+                        </center>
                         </div>
                     </td>
                     {% else %}
@@ -138,6 +151,12 @@
         
                             <!-- Primeros 3 caracteres del autor -->
                             <p>{{ lista.copia.codigolibro.item }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ lista.copia.codigolibro.titulo }}</p>
+                            <center>
+                            <form method="POST" action="{% url 'quitar_registro_int' lista.copia.clavecopia %}" class="hidden-on-print">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">X</button>
+                            </form>
+                        </center>
                         </div>
                     </td>
                     {% endif %}

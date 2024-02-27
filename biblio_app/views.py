@@ -123,7 +123,6 @@ def etiquetas(request):
         listacopias.append(i)
     for i in listacopiastras:
         listacopias.append(i)
-    print(listacopias)
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias, "vacios":vaciocopias})
 def credenciales(request):
     return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales,"vacios":vacioalum})
@@ -914,20 +913,20 @@ def vaciar_lista_alum(request):
     return redirect('/credencial')
 
 def quitar_registro_front(request, copia_id):
-    for instance in listacopiastras:
-        if instance.copia == copia_id:
+    for instance in listacopiasfront:
+        if instance.copia.clavecopia == copia_id:
             listacopiasfront.remove(instance)
             break
     return redirect('/etiqueta')
 def quitar_registro_back(request, copia_id):
     for instance in listacopiastras:
-        if instance.copia == copia_id:
+        if instance.copia.clavecopia == copia_id:
             listacopiastras.remove(instance)
             break
     return redirect('/etiqueta')
 def quitar_registro_int(request, copia_id):
-    for instance in listacopiastras:
-        if instance.copia == copia_id:
+    for instance in listacopiasint:
+        if instance.copia.clavecopia == copia_id:
             listacopiasint.remove(instance)
             break
     return redirect('/etiqueta')
