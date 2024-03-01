@@ -49,6 +49,7 @@ class Multa(models.Model):
     alumno = models.ForeignKey('Alumno', on_delete=models.CASCADE, null=True)  # Campo de referencia a Alumno
     prestamo = models.ForeignKey('Prestamo', on_delete=models.CASCADE, null=True)  # Campo de referencia a Prestamo
     pagado = models.BooleanField(default=False)  # Campo booleano (True/False)
+    actualiz= models.DateField(null=True,blank=True)
 
     def __str__(self):
         return f"Multa de {self.monto} para {self.alumno}"

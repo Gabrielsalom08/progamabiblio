@@ -1,37 +1,43 @@
-# tasks.py
-
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django.utils import timezone
-from .models import Prestamo, Multa
-import pytz
 from datetime import datetime
-import time
 
-# Obtener la hora actual en la zona horaria 'America/Mexico_City'
-tz = pytz.timezone('America/Mexico_City')
-now = datetime.now(tz)
+class TaskSingleton:
+    _instance = None
 
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
 
-# Define la función para actualizar multas
-def actualizar_multas():
-    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
-    print("hola")
-    for prestamo in prestamos_activos:
-        multas = Multa.objects.filter(prestamo=prestamo)
-        if multas.exists():
-            for multa in multas:
-                multa.monto += 2
-                multa.save()
-        else:
-            Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, prestamo=prestamo)
-    
+    def __init__(self):
+        print("Creating TaskSingleton instance")  # Add this line for debugging
+        self.scheduler = BackgroundScheduler()
+        
+        # Define the trigger to run at any time between 6:30 am and 7:00 am every weekday
+        trigger = CronTrigger(day_of_week='mon-fri', hour=13, minute='10-59')
+        
+        self.scheduler.add_job(self.actualizar_multas, trigger=trigger, misfire_grace_time=3600, max_instances=1)
+        print("Scheduler added job")  # Add this line for debugging
+        self.scheduler.start()
+        print("Scheduler started")  # Add this line for debugging
 
-def iniciar_planificador():
-    scheduler = BackgroundScheduler()
-    # Configurar la hora y los días de la semana en los que se ejecutará la tarea
-    trigger = CronTrigger(hour='6-7', minute=30, day_of_week='mon-fri')  # Ejemplo: ejecutar a las 6:00 AM de lunes a viernes
-    # Agregar la tarea para ejecutar actualizar_multas en la hora y días de la semana especificados
-    scheduler.add_job(actualizar_multas, trigger=trigger)
-    scheduler.start()
+    def actualizar_multas(self):
+        print("Executing actualizar_multas")  # Add this line for debugging
+        # Import models locally to avoid AppRegistryNotReady error
+        from .models import Prestamo, Multa
 
+        prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+        print("Total active loans:", prestamos_activos.count())  # Add this line for debugging
+        for prestamo in prestamos_activos:
+            print("Processing loan:", prestamo.id)  # Add this line for debugging
+            multas = Multa.objects.filter(prestamo=prestamo)
+            if multas.exists():
+                for multa in multas:
+                    if multa.actualiz != timezone.now().date():
+                        multa.monto += 2
+                        multa.actualiz = timezone.now().date()
+                        multa.save()
+            else:
+                Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, prestamo=prestamo, actualiz=timezone.now().date())

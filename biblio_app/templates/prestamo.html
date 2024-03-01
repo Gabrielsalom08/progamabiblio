@@ -21,14 +21,7 @@
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">Exportar datos completos a Excel</button>
       </form>
-      <h5>Buscar Préstamo</h5>
-      <form method="get" action="/prestamo" class="mb-3">
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="Buscar por clave de alumno o clave de libro" name="q">
-          <button type="submit" class="btn btn-outline-primary">Buscar</button>
-          <h6> Para mostrar todos los préstamos después de una búsqueda realiza una búsqueda sin contenido o apreta el botón de préstamos otra vez</h6>
-        </div>
-      </form>
+      <h5>Historial de Prestamos</h5>
       <table class="table table-hover">
         <thead>
           <tr>
@@ -45,7 +38,7 @@
           {% for prestamo in prestamo %}
           <tr>
             <td>{{ prestamo.clave_alumno.clave|stringformat:"05d" }}</td>
-            <td>{{ prestamo.clave_alumno }} {{prestamo.clave_alumno.grupo}} {{prestamo.clave_alumno.clase}} </td>
+            <td>{{ prestamo.clave_alumno }} {{prestamo.clave_alumno.grupo}}{{prestamo.clave_alumno.clase}} </td>
             <td>{{ prestamo.clave_copia.clavecopia|stringformat:"06d" }}</td>
             <td>{{ prestamo.clave_copia.codigolibro.titulo }}</td>
             <td>{{ prestamo.regreso }}</td>

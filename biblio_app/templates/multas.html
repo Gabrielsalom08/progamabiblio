@@ -7,19 +7,13 @@
     <div class="row">
         <nav class="navbar bg-body-light">
             <div class="container-fluid justify-content-center align-items-center">
-                <form class="d-flex" role="search" action="busqueda" method="get">
-                    <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search" name="q" value="{{ request.GET.q }}">
-                    <button class="btn btn-outline-success" type="submit">Buscar</button>
-                </form>
             </div>
         </nav>
         <div class="row mt-4">
             <form method="post" action="{% url 'exportar_excel_multas' %}" style="margin-left: 10px;">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Exportar Datos</button>
+                <button type="submit" class="btn btn-primary">Exportar Datos a excel</button>
             </form>     
-            <h6> Para mostrar todos los libros despues de una busqueda realiza una busqueda sin contenido o apreta el boton de busqueda otra vez</h6>
-            <p>{{ copias|length }} copias registradas</p>
         </div>
         <div class="row mt-4">
             <div class="container" style="overflow-y:auto;">
@@ -27,7 +21,7 @@
                     <thead>
                         <th>Clave Alumno</th>
                         <th>Nombre Alumno</th>
-                        <th>Año Alumno</th>
+                        <th>Grupo Alumno</th>
                         <th>Cantidad de la multa</th>
                         {% if user.is_authenticated %}
                         <th>Pagar multa</th>
@@ -39,9 +33,9 @@
                                 <td>{{ multa.alumno.clave|stringformat:"05d" }}</td>
                                 <td>{{ multa.alumno }}</td>
                                 <td> {% if multa.alumno.grupo == 0 %}
-                                    PF
+                                    PF{%if multa.alumno.clase%}{{multa.alumno.clase}}{%endif%}
                                 {% else %}
-                                    {{ multa.alumno.grupo }}
+                                    {{ multa.alumno.grupo }}{%if multa.alumno.clase%}{{multa.alumno.clase}}{%endif%}
                                 {% endif %}</td>
                                 <td>${{ multa.monto }}</td>
                                 {% if user.is_authenticated %}
