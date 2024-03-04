@@ -68,6 +68,7 @@ urlpatterns = [
     path('agregar-alumno-vacio/', agregar_alu_vacia, name='agregar_alumno_vacio'),
     path('agregar-alumno/', agregar_alu, name='agregar_alumno'),
     path('vaciar-lista-alumno/', vaciar_lista_alum, name='vaciar_lista_alum'),
+     path('exportar-tabla/', exportar_tabla, name='exportar_tabla'),
     path('quitar_registro_int/<int:copia_id>/', quitar_registro_int, name='quitar_registro_int'),
     path('quitar_registro_tras/<int:copia_id>/', quitar_registro_back, name='quitar_registro_tras'),
     path('quitar_registro_fron/<int:copia_id>/', quitar_registro_front, name='quitar_registro_fron'),
