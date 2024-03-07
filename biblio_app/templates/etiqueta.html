@@ -4,66 +4,94 @@
 
 {% block main_content %}
 <style>
-/* Estilos para imprimir */
+    /* Estilos para imprimir */
+    /* Estilos para imprimir */
 @media print {
+    @page {
+        size: auto; /* Tamaño de página automático */
+        margin: 0;
+    }
+
     body * {
         visibility: hidden;
     }
-    .print-table, .print-table * {
-        visibility: visible;
-    }
-    .print-table {
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
+
     .hidden-on-print {
         display: none;
     }
+
+    .print-table, .print-table * {
+        visibility: visible;
+        visibility: visible;
+    }
+
+    .print-table {
+        position:absolute;
+        left: 0;
+        top: 0;
+        border: none !important ; /* Eliminar el borde de la tabla durante la impresión */
+        width: 100%; /* Ancho de la tabla al 100% */
+    }
+
+    .print-table td {
+        width: 6.75cm; /* Ancho fijo para las celdas */
+        min-width: 6.75cm; /* Ancho mínimo para las celdas */
+        height: 2.55cm; /* Altura fija para las celdas */
+        vertical-align: top;
+        padding: 5mm; /* Margen de 5 mm en todas las celdas */
+        border: none !important; /* Borde de 1px sólido negro */
+        margin-top: 1.3cm; /* Margen superior */
+        page-break-inside: avoid; /* Evitar que las celdas se dividan entre páginas */
+    }
 }
 
-/* Estilos para la tabla */
-.print-table {
-    border-collapse: collapse;
-    width: 20cm;
-    margin: 3mm;
-    font-size: 10px;
-    border: 1px solid black; /* Borde de 1px sólido negro */
-}
 
-.print-table td {
-    width: 6.7cm;
-    height: 2.5cm;
-    vertical-align: top;
-    padding: 2mm; /* Margen de 2 mm en todas las celdas */
-    border: 1px solid black; /* Borde de 1px sólido negro */
-}
-
-/* Estilos específicos para la segunda columna */
-.print-table td:nth-child(2) {
-    text-align: left; /* Alineación a la izquierda */
-    padding-left: 5mm; /* Margen de la izquierda de 5mm */
-}
-
-/* Estilos específicos para la tercera columna */
-.print-table td:nth-child(3) {
-    text-align: left; /* Alineación a la izquierda */
-    padding-left: 5mm; /* Margen de la izquierda de 5mm */
-}
-
-.print-table td p {
-    margin: 0; /* Elimina el margen de los párrafos */
-}
-
-/* Estilos específicos para la clave en la segunda y tercera celda */
-.print-table td:nth-child(2) p:first-child,
-.print-table td:nth-child(3) p:first-child {
-    text-align: right; /* Alineación a la derecha */
-    width: 100%; /* Ancho del 100% para que el contenido se alinee a la derecha */
-}
-    /* Oculta la cuarta columna cuando se imprime */
-
-</style>
+    
+    /* Estilos para la tabla */
+    .print-table {
+        border-collapse: collapse;
+        width: 20.5cm;
+        font-size: 10px;
+        border: 1px solid black; /* Borde de 1px sólido negro */
+    }
+    
+    .print-table td {
+        width: 6.75cm;
+        height: 2.55cm;
+        vertical-align: top;
+        padding: 5mm; /* Margen de 5 mm en todas las celdas */
+        border: 1px solid black; /* Borde de 1px sólido negro */
+        margin-top: 1.3cm;
+    }
+    
+    /* Estilos específicos para la segunda columna */
+    .print-table td:nth-child(2) {
+        text-align: left; /* Alineación a la izquierda */
+        padding-left: 5mm; /* Margen de la izquierda de 5mm */
+    }
+    
+    /* Estilos específicos para la tercera columna */
+    .print-table td:nth-child(3) {
+        text-align: left; /* Alineación a la izquierda */
+        padding-left: 5mm; /* Margen de la izquierda de 5mm */
+    }
+    .print-table td:nth-child(30+30n ) {
+        page-break-after: always;
+    }
+    
+    .print-table td p {
+        margin: 0; /* Elimina el margen de los párrafos */
+    }
+    
+    /* Estilos específicos para la clave en la segunda y tercera celda */
+    .print-table td:nth-child(2) p:first-child,
+    .print-table td:nth-child(3) p:first-child {
+        text-align: right; /* Alineación a la derecha */
+        width: 100%; /* Ancho del 100% para que el contenido se alinee a la derecha */
+    }
+        /* Oculta la cuarta columna cuando se imprime */
+    
+    </style>
 
 <form method="POST" style="margin-left: 150px; margin-top: 20px;">
     {% csrf_token %}
@@ -93,47 +121,27 @@
 
 <!-- Botón para imprimir tabla -->
 <button onclick="window.print()" style="margin-left: 150px; margin-top: 20px;" class="btn btn-success">Imprimir tabla</button>
-<center>
-    <table class="print-table">
-        <tbody>
-            {% for lista in lista %}
-            {% if forloop.counter0|divisibleby:3 %}
-                <tr>
-            {% endif %}
-            {% if lista.campo_auxiliar == 0 %}
-                <td></td>
-            {% else %}
-                {% if lista.campo_auxiliar == 1 %}
-                <td>
-                    <!-- Celda 1: Código de barras, clave de copia y título asociado frontal -->
-                    <div>
-                        <!-- Código de barras -->
-                        <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 40px;">{{lista.copia.clavecopia | stringformat:"06d"}}</span>
-                        <!-- Título asociado -->
-                        <p>{{ lista.copia.codigolibro.titulo }}</p>
-                        <center>
-                        <form method="POST" action="{% url 'quitar_registro_fron' lista.copia.clavecopia %}" class="hidden-on-print" >
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">X</button>
-                        </form>
-                    </center>
-                    </div>
-                </td>
+<p style="margin-left: 150px; margin-top: 20px; margin-right: 150px; text-align: justify; color: red;">IMPORTANTE SOLO ES POSIBLE IMPRIMIR UNA HOJA DE ETIQUETAS A LA VEZ SI IMPRIMES MAS DE UNA HOJA A LA VEZ LAS ETIQUETAS DE LA HOJA 2 NO SALDRAN CORRECTAMENTE ADEMAS PARA QUE SE IMPRIMA CORRECTAMENTE SELECCIONA SIN MARGENES EN EL MOMENTO DE LA IMPRESION LO QUE SIGNIFICA QUE DEBES DE  SELECCIONAR MAS AJUSTES Y CUANDO APAREZCA LA OPCION DE MARGENES DEBES DE SELECCIONAR NINGUNO PARA QUE LAS ETIQUETAS SALGAN CORRECTAMENTE</p>
+    <center>
+        <table class="print-table">
+            <tbody>
+                {% for lista in lista %}
+                {% if forloop.counter0|divisibleby:3 %}
+                    <tr>
+                {% endif %}
+                {% if lista.campo_auxiliar == 0 %}
+                    <td></td>
                 {% else %}
-                    {% if lista.campo_auxiliar == 2 %}
+                    {% if lista.campo_auxiliar == 1 %}
                     <td>
-                        <!-- Celda 2: Clave de libro/copía, código Dewey y autor -->
+                        <!-- Celda 1: Código de barras, clave de copia y título asociado frontal -->
                         <div>
-                            <!-- Clave de libro/copía -->
-                            <p>{{ lista.copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ lista.copia.clavecopia | stringformat:"06d" }}</p>
-                            <!-- Código Dewey -->
-                            <p>{{ lista.copia.codigolibro.dewy }} </p>
-                            <!-- Item -->
-                            <p>{{ lista.copia.codigolibro.item }}</p>
-                            <!--Numero de tomo-->
-                            <p>{%if lista.copia.codigolibro.tomo%}{{lista.copia.codigolibro.tomo}}{%endif%}</p>
+                            <!-- Código de barras -->
+                            <span style="font-family: 'Libre Barcode 39 Extended Text'; font-size: 30px;">{{lista.copia.clavecopia | stringformat:"06d"}}</span>
+                            <!-- Título asociado -->
+                            <p>{{ lista.copia.codigolibro.titulo }}</p>
                             <center>
-                            <form method="POST" action="{% url 'quitar_registro_tras' lista.copia.clavecopia %}" class="hidden-on-print">
+                            <form method="POST" action="{% url 'quitar_registro_fron' lista.copia.clavecopia %}" class="hidden-on-print" >
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger">X</button>
                             </form>
@@ -141,35 +149,57 @@
                         </div>
                     </td>
                     {% else %}
-                    <td>
-                        <!-- Celda 3: Clave de libro/copía, código Dewey y autor -->
-                        <div>
-                            <!-- Clave de libro/copía -->
-                            <p>{{ lista.copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ lista.copia.clavecopia | stringformat:"06d" }}</p>
-                            <!-- Código Dewey -->
-                            <p>{{ lista.copia.codigolibro.dewy }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ lista.copia.codigolibro.autor }}</p>
-        
-                            <!-- Primeros 3 caracteres del autor -->
-                            <p>{{ lista.copia.codigolibro.item }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ lista.copia.codigolibro.titulo }}</p>
-                            <center>
-                            <form method="POST" action="{% url 'quitar_registro_int' lista.copia.clavecopia %}" class="hidden-on-print">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger">X</button>
-                            </form>
-                        </center>
-                        </div>
-                    </td>
+                        {% if lista.campo_auxiliar == 2 %}
+                        <td>
+                            <!-- Celda 2: Clave de libro/copía, código Dewey y autor -->
+                            <div>
+                                <!-- Clave de libro/copía -->
+                                <p>{{ lista.copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ lista.copia.clavecopia | stringformat:"06d" }}</p>
+                                <!-- Código Dewey -->
+                                <p>{{ lista.copia.codigolibro.dewy }} </p>
+                                <!-- Item -->
+                                <p>{{ lista.copia.codigolibro.item }}</p>
+                                <!--Numero de tomo-->
+                                <p>{%if lista.copia.codigolibro.tomo%}{{lista.copia.codigolibro.tomo}}{%endif%}</p>
+                                <center>
+                                <form method="POST" action="{% url 'quitar_registro_tras' lista.copia.clavecopia %}" class="hidden-on-print">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">X</button>
+                                </form>
+                            </center>
+                            </div>
+                        </td>
+                        {% else %}
+                        <td>
+                            <!-- Celda 3: Clave de libro/copía, código Dewey y autor -->
+                            <div>
+                                <!-- Clave de libro/copía -->
+                                <p>{{ lista.copia.codigolibro.codigolibro | stringformat:"06d" }}/{{ lista.copia.clavecopia | stringformat:"06d" }}</p>
+                                <!-- Código Dewey -->
+                                <p>{{ lista.copia.codigolibro.dewy }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ lista.copia.codigolibro.autor|slice:":40" }}</p>
+            
+                                <!-- Primeros 3 caracteres del autor -->
+                                <p>{{ lista.copia.codigolibro.item }} <span>&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ lista.copia.codigolibro.titulo|slice:":40" }}</p>
+                                <center>
+                                <form method="POST" action="{% url 'quitar_registro_int' lista.copia.clavecopia %}" class="hidden-on-print">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">X</button>
+                                </form>
+                            </center>
+                            </div>
+                        </td>
+                        {% endif %}
                     {% endif %}
+                {% endif %} 
+                {% if forloop.counter|divisibleby:3 or forloop.last %}
+                    </tr>
                 {% endif %}
-            {% endif %}
-            {% if forloop.counter|divisibleby:3 or forloop.last %}
-                </tr>
-            {% endif %}
-        {% endfor %}
-        
-        </tbody>
-    </table>
-</center>
+            {% endfor %}
+            
+            </tbody>
+        </table>
+    </center>
+
 <script>
     // Obtén todos los elementos de clase "barcode" y genera el código de barras para cada uno
     var barcodes = document.querySelectorAll('.barcode');
@@ -179,5 +209,23 @@
         // Genera el código de barras y lo inserta dentro del elemento span
         JsBarcode(barcode, barcodeValue);
     });
+    // JavaScript para aplicar márgenes superiores e inferiores en la primera página
+// y restablecerlos para las páginas siguientes si la tabla se divide
+
+// JavaScript para aplicar márgenes superiores e inferiores en todas las páginas
+
+// JavaScript para aplicar márgenes superiores e inferiores en todas las páginas
+
+window.onbeforeprint = function() {
+    // Aplicar estilos específicos para todas las páginas
+    var style = document.createElement('style');
+    style.innerHTML = '@media print { @page { margin-top: 1.3cm; } }';
+    document.head.appendChild(style);
+};
+
+
+
 </script>
+
+
 {% endblock %}
