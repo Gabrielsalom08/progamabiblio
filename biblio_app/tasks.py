@@ -16,7 +16,7 @@ class TaskSingleton:
         self.scheduler = BackgroundScheduler()
         
         # Define the trigger to run at any time between 6:30 am and 7:00 am every weekday
-        trigger = CronTrigger(day_of_week='mon-fri', hour=13, minute='10-59')
+        trigger = CronTrigger(day_of_week='mon-fri', hour=9, minute='0-59')
         
         self.scheduler.add_job(self.actualizar_multas, trigger=trigger, misfire_grace_time=3600, max_instances=1)
         print("Scheduler added job")  # Add this line for debugging

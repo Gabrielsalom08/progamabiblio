@@ -70,6 +70,7 @@
   $(document).ready( function () {
       $('.table').DataTable({
           "paging": true,
+          "order": [[6, "desc"]],
           "pageLength": 30 // Mostrar solo 30 elementos por página
       });
   });

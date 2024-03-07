@@ -122,9 +122,27 @@ def etiquetas(request):
         listacopias.append(i)
     for i in listacopiastras:
         listacopias.append(i)
+
+    listacopias=ordena(listacopias)
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias, "vacios":vaciocopias})
 def credenciales(request):
     return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales,"vacios":vacioalum})
+
+def ordena(x):
+    y=[]
+    z=[]
+    for i in x:
+        if i.copia == '':
+            y.append(i)
+        else:
+            z.append(i)
+    z.sort(key=lambda x: x.copia.clavecopia)
+    lista=[]
+    for i in y:
+        lista.append(i)
+    for i in z:
+        lista.append(i)
+    return(lista)
 
 def login_view(request):
     if request.method == 'POST':
@@ -545,7 +563,7 @@ def cargar_copias_desde_excel(request):
 
 def eliminar_copia(request, pk):
     copia_obj = get_object_or_404(Copia, clavecopia=pk)
-    print(copia_obj)
+
 
     if request.method == 'POST':
         copia_obj.delete()
