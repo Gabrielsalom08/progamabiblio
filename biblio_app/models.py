@@ -47,7 +47,6 @@ class Prestamo(models.Model):
 class Multa(models.Model):
     monto = models.FloatField()  # Campo de tipo double
     alumno = models.ForeignKey('Alumno', on_delete=models.CASCADE, null=True)  # Campo de referencia a Alumno
-    prestamo = models.ForeignKey('Prestamo', on_delete=models.CASCADE, null=True)  # Campo de referencia a Prestamo
     pagado = models.BooleanField(default=False)  # Campo booleano (True/False)
     actualiz= models.DateField(null=True,blank=True)
 

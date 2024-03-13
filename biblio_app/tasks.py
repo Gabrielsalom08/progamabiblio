@@ -16,7 +16,7 @@ class TaskSingleton:
         self.scheduler = BackgroundScheduler()
         
         # Define the trigger to run at any time between 6:30 am and 7:00 am every weekday
-        trigger = CronTrigger(day_of_week='mon-fri', hour=9, minute='0-59')
+        trigger = CronTrigger(day_of_week='mon-fri', hour=6, minute='0-59')
         
         self.scheduler.add_job(self.actualizar_multas, trigger=trigger, misfire_grace_time=3600, max_instances=1)
         print("Scheduler added job")  # Add this line for debugging
@@ -32,7 +32,7 @@ class TaskSingleton:
         print("Total active loans:", prestamos_activos.count())  # Add this line for debugging
         for prestamo in prestamos_activos:
             print("Processing loan:", prestamo.id)  # Add this line for debugging
-            multas = Multa.objects.filter(prestamo=prestamo)
+            multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
             if multas.exists():
                 for multa in multas:
                     if multa.actualiz != timezone.now().date():
@@ -40,4 +40,4 @@ class TaskSingleton:
                         multa.actualiz = timezone.now().date()
                         multa.save()
             else:
-                Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, prestamo=prestamo, actualiz=timezone.now().date())
+                Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
