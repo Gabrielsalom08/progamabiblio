@@ -12,6 +12,7 @@
                       <tr>
                         <th>Clave de Alumno</th>
                         <th>Nombre Alumno</th>
+                        <th>Grupo</th>
                         <th>Clave de Libro</th>
                         <th>Titulo libro</th>
                         <th>Fecha prestamo</th>
@@ -24,7 +25,8 @@
                       {% for prestamo in prestamo %}
                       <tr>
                         <td>{{ prestamo.clave_alumno.clave|stringformat:"05d" }}</td>
-                        <td>{{ prestamo.clave_alumno }}   {{prestamo.clave_alumno.grupo}} {%if prestamo.clave_alumno.clase %} {{prestamo.clave_alumno.clase}} {%endif%}</td>
+                        <td>{{ prestamo.clave_alumno }}   </td>
+                        <td>{{prestamo.clave_alumno.grupo}} {%if prestamo.clave_alumno.clase %} {{prestamo.clave_alumno.clase}} {%endif%}</td>
                         <td>{{ prestamo.clave_copia.clavecopia|stringformat:"06d" }}</td>
                         <td>{{ prestamo.clave_copia.codigolibro.titulo }}</td>
                         <td>{% if prestamo.fecha_creacion  %} {{ prestamo.fecha_creacion }} {%endif%}</td>
@@ -100,7 +102,7 @@
     $(document).ready( function () {
         $('.table').DataTable({
             "paging": true,
-            "order": [[5, "asc"]],
+            "order": [[6, "asc"]],
             "pageLength": 50, // Mostrar solo 30 elementos por página
         });
     });
