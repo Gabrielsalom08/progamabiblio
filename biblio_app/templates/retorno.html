@@ -14,8 +14,8 @@
                         <th>Nombre Alumno</th>
                         <th>Clave de Libro</th>
                         <th>Titulo libro</th>
-                        <th>Fecha limite</th>
                         <th>Fecha prestamo</th>
+                        <th>Fecha limite</th>
                         <th>Ampliar Prestamo</th>
                         <th>Regresar libro</th>
                       </tr>
@@ -27,8 +27,8 @@
                         <td>{{ prestamo.clave_alumno }}   {{prestamo.clave_alumno.grupo}} {%if prestamo.clave_alumno.clase %} {{prestamo.clave_alumno.clase}} {%endif%}</td>
                         <td>{{ prestamo.clave_copia.clavecopia|stringformat:"06d" }}</td>
                         <td>{{ prestamo.clave_copia.codigolibro.titulo }}</td>
-                        <td>{{ prestamo.regreso }}</td>
                         <td>{% if prestamo.fecha_creacion  %} {{ prestamo.fecha_creacion }} {%endif%}</td>
+                        <td>{{ prestamo.regreso }}</td>
                         <td>
                             <a href="#" class="btn btn-primary" onclick="ampliarPrestamo('{{ prestamo.pk }}')">
                                 Ampliar Prestamo
