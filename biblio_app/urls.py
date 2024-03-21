@@ -46,6 +46,7 @@ urlpatterns = [
     path('exportar_excel_multas', exportar_excel_multas,name='exportar_excel_multas'),
     path('exportar_excel', exportar_excel,name='exportar_excel'),
     path('exportar_excel_alumnos/', exportar_excel_alumnos, name='exportar_excel_alumnos'),
+    path('exportar_excel_grupo/', exportar_excel_prestamos_grupo, name='exportar_excel_grupo'),
     path('busqueda/<int:clavecopia>', busqeda_detalle, name='busqueda_detalle'),
     path('libro/cargar_excel_copia', cargar_copias_desde_excel, name='cargar_desde_excel_copias'),
     path('libro/agregar-copia/', agregar_copia, name='agregar_copia'),

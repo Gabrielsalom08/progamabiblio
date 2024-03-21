@@ -781,7 +781,7 @@ def exportar_excel_multas(request):
     ws.title = "Multas"
 
     # Encabezados de la tabla
-    ws.append(["Clave de Alumno", "Nombre Alumno", "Año Alumno", "Cantidad de multa", "Pagado"])
+    ws.append(["Clave de Alumno", "Nombre Alumno", "Año Alumno","Grupo", "Cantidad de multa", "Pagado"])
 
     # Obtener todas las multas
     multas = Multa.objects.all()
@@ -791,7 +791,8 @@ def exportar_excel_multas(request):
         ws.append([
             multa.alumno.clave,
             f"{multa.alumno.nombre} {multa.alumno.apellido}",
-            "PF" if multa.alumno.grupo == 0 else multa.alumno.grupo,
+            "PF" if multa.alumno.grupo == 0 else multa.alumno.grupo  ,
+            multa.alumno.clase,
             multa.monto,
             "Sí" if multa.pagado else "No",
         ])
@@ -802,6 +803,48 @@ def exportar_excel_multas(request):
     wb.save(response)
     
     return response
+def exportar_excel_prestamos_grupo(request):
+    # Crear un libro de trabajo de Excel
+    wb = Workbook()
+    ws = wb.active
+    
+    query = request.POST.get('clave_alum')
+    print(query)
+    prestamos = None  # Inicializar la variable prestamos
+    ws.title = "Préstamos de " + query
+    # Encabezados de la tabla
+    ws.append(["Clave de Alumno", "Nombre Alumno", "Clave de Libro", "Título libro", "Fecha límite", "Fecha regresado"])
+
+    if query:
+        if query[0]==0:
+             ws.title = "Préstamos de PF" + query[1]
+        else:
+            ws.title = "Préstamos de " + query
+        # Verificar si la consulta es un número puro
+        prestamos = Prestamo.objects.annotate(grado_grupo=Concat('clave_alumno__grupo', 'clave_alumno__clase', output_field=CharField())).filter(grado_grupo=query, activo=True)
+
+
+    if prestamos:  # Verificar si prestamos tiene un valor asignado
+        # Datos de la tabla
+        for prestamo in prestamos:
+            ws.append([
+                prestamo.clave_alumno.clave,
+                f"{prestamo.clave_alumno.nombre} {prestamo.clave_alumno.apellido}",
+                prestamo.clave_copia.clavecopia,
+                prestamo.clave_copia.codigolibro.titulo,
+                prestamo.regreso,
+                prestamo.fecha_regreso if prestamo.fecha_regreso else "",
+            ])
+
+    # Guardar el libro de trabajo como un archivo Excel
+    # Guardar el libro de trabajo como un archivo Excel
+    nombre_archivo = f"{ws.title}.xlsx"  # Utiliza el título del libro de trabajo en el nombre del archivo
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
+    wb.save(response)
+
+    return response
+
 
 def exportar_excel_prestamos_alumno(request):
     # Crear un libro de trabajo de Excel

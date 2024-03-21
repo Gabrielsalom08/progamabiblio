@@ -17,6 +17,16 @@
           </div>
         </form>
       </div>
+      <div>
+        <form method="post" action="{% url 'exportar_excel_grupo' %}">
+          {% csrf_token %}
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Grupo para descargar" name="clave_alum">
+            <button type="submit" class="btn btn-primary">Exportar datos de un alumno a Excel </button>
+            <p>Para exportar la informacion de los grupos de PA busca el grupo con "0" en lugar de PA Ejemplo: "PAB" seria "0B"</p>
+          </div>
+        </form>
+      </div>
       <form method="post" action="{% url 'exportar_excel_prestamos' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">Exportar datos completos a Excel</button>
