@@ -6,16 +6,16 @@
 <div class="container-flex text-center justify-content-center allign-items-center" style="padding-top: 20px;">
     <div class="row justify-content-center align-middle" style="margin-top: 10px; height:60px;">
     <div class="col-md-4 text-center">
-        <h4 style="margin-top: 15px;"> Registra un nuevo alumno</h4>
+        <h4 style="margin-top: 15px;"> Registra un nuevo alumn@</h4>
     </div>
     <div class="col-md-8">
-        <h4>Buscar Alumnos</h4>
+        <h4>Buscar Alumn@</h4>
     </div>
     </div>
 </div>
 <div class="row">
     <div class="col-md-4">
-        <h6>Para agregar a un alumno de Pf o preprimaria ingresa su año como 0</h6>
+        <h6>Para agregar a un alumn@ de Pf o preprimaria ingresa su año como 0</h6>
         <div class="container" style="overflow-y: auto; height: 600px;">
             <form class="d-flex" action="/alumno/agregar" method="post">
                 {%csrf_token%}
@@ -38,7 +38,7 @@
                     </tr>
                     {% if user.is_authenticated %}
                     <tr>
-                        <td colspan="2" style="align-items: center; align-self: center;"><button class="btn btn-primary" type="submit" style="align-self: center;"> Agregar alumno</button></td>
+                        <td colspan="2" style="align-items: center; align-self: center;"><button class="btn btn-primary" type="submit" style="align-self: center;"> Agregar alumn@</button></td>
                     </tr>
                     {%endif%}
                 </table>
@@ -93,7 +93,7 @@
             <td>{{ alumno.apellido }}</td>
             <td>
                 {% if alumno.grupo == 0 %}
-                    PF {{alumno.clase}}
+                    PF{{alumno.clase}}
                 {% else %}
                     {{ alumno.grupo }}{{alumno.clase}}
                 {% endif %}

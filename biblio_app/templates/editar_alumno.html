@@ -11,20 +11,18 @@
         font-size: 18px;
     }
 
-    h2 {
+    h3 {
         color: #1C4E46;
     }
 
     form {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        margin-bottom: 100px;
+        align-items: center;    
     }
 
     label {
         color: white;
-        margin-top: 10px;
     }
 
     input {
@@ -40,14 +38,12 @@
     button {
         background-color: white;
         color: #1C4E46;
-        padding: 10px 20px;
         border: none;
         cursor: pointer;
-        margin-top: 10px;
     }
 </style>
 
-<h2>Editar Alumno</h2>
+<h3>Editar Alumn@</h3>
 <form method="post">
     {% csrf_token %}
     <label for="nombre">Nombre:</label>

@@ -7,32 +7,37 @@
     body {
         background-color: #1C4E46;
         color: white;
-        text-align: center;
         font-size: 18px;
     }
 
-    h2 {
-        color: #1C4E46;
+    h3 {
+        margin-bottom: 10px;
     }
 
     p {
         color: white;
+        text-align: left; /* Alinea el texto a la derecha */
     }
 
     a {
         color: #0074cc;  /* Cambiado a un color azul */
         text-decoration: none;
-        margin-right: 10px;
-        font-weight: bold;
+        margin-right: 10px; 
+        font-size: 30px;
     }
 
-    /* Agregar un margen superior al contenido */
+    /* Estilos para centrar el contenido verticalmente */
     .content-container {
-        margin-top: 100px; /* Puedes ajustar este valor según tu preferencia */
+        display: flex;
+        flex-direction: column;
+        margin-left: 37%;
+        margin-top: 50px;
+        min-height: 100vh; /* Ocupa al menos el 100% de la altura de la ventana */
     }
 </style>
 
 <div class="content-container">
+    <h3>Información de la Copia</h3>
     <p>Título del Libro: {{ copia.codigolibro.titulo }}</p>
     <p>Autor: {{ copia.codigolibro.autor }}</p>
     <p>Ilustrador: {{ copia.codigolibro.ilustrador }}</p>
@@ -40,16 +45,17 @@
     <p>Editorial: {{ copia.codigolibro.editorial }}</p>
     <p>Número de Tomo: {{ copia.codigolibro.numerotomo }}</p>
     <p>Características Especiales: {{ copia.codigolibro.caracteristicasespeciales }}</p>
-    <p>Palabras Calve: {{ copia.codigolibro.palabrasclave }}</p>
+    <p>Palabras Clave: {{ copia.codigolibro.palabrasclave }}</p>
     <p>Clasificación Dewey: {{ copia.codigolibro.dewy }}</p>
     <p>Item: {{ copia.codigolibro.item }}</p>
-    <p>Publico Dirigido: {{ copia.codigolibro.publicodirigido }}</p>
+    <p>Público Dirigido: {{ copia.codigolibro.publicodirigido }}</p>
     <p>Disponible: {% if copia.disponible %}Sí{% else %}No{% endif %}</p>
     {% if not copia.disponible %}
-    <p>Clave del Alumno: {{ copia.clavealumno.clave|stringformat:"05d" }}</p>
-    <p>Nombre del Alumno: {{ copia.clavealumno.nombre }} {{ copia.clavealumno.apellido }}</p>
+    <p>Clave del Alumn@: {{ copia.clavealumno.clave|stringformat:"05d" }}</p>
+    <p>Nombre del Alumn@: {{ copia.clavealumno.nombre }} {{ copia.clavealumno.apellido }}</p>
     {% endif %}
+    <a href="/busqueda">Regresar</a>
 </div>
 
-<a href="/busqueda">Regresar</a>
+
 {% endblock %}

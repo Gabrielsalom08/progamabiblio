@@ -22,8 +22,8 @@
           {% csrf_token %}
           <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Grupo para descargar" name="clave_alum">
-            <button type="submit" class="btn btn-primary">Exportar datos de un alumno a Excel </button>
-            <p>Para exportar la informacion de los grupos de PA busca el grupo con "0" en lugar de PA Ejemplo: "PAB" seria "0B"</p>
+            <button type="submit" class="btn btn-primary">Exportar prestamos activos de un grupo a Excel </button>
+            <p>Para exportar la informacion de los grupos de PF busca el grupo con "0" en lugar de PF Ejemplo: "PFB" seria "0B"</p>
           </div>
         </form>
       </div>
@@ -50,12 +50,18 @@
           <tr>
             <td>{{ prestamo.clave_alumno.clave|stringformat:"05d" }}</td>
             <td>{{ prestamo.clave_alumno }} </td>
-            <td>{{prestamo.clave_alumno.grupo}}{{prestamo.clave_alumno.clase}}</td>
+            <td> 
+              {% if prestamo.clave_alumno.grupo == 0 %}
+                    PF{{prestamo.clave_alumno.clase}}
+              {% else %}
+                  {{ prestamo.clave_alumno.grupo }}{{prestamo.clave_alumno.clase}}
+              {% endif %} 
+            </td>
             <td>{{ prestamo.clave_copia.clavecopia|stringformat:"06d" }}</td>
             <td>{{ prestamo.clave_copia.codigolibro.titulo }}</td>
-            <td>{% if prestamo.fecha_creacion  %} {{ prestamo.fecha_creacion }} {%endif%}</td>
-            <td>{{ prestamo.regreso }}</td>
-            <td>{% if prestamo.fecha_regreso  %} {{ prestamo.fecha_regreso }} {%endif%}</td>
+            <td>{% if prestamo.fecha_creacion  %} {{ prestamo.fecha_creacion|date:"Y/m/d" }} {%endif%}</td>
+            <td>{{ prestamo.regreso|date:"Y/m/d" }}</td>
+            <td>{% if prestamo.fecha_regreso  %} {{ prestamo.fecha_regreso|date:"Y/m/d" }} {%endif%}</td>
           </tr>
           {% endfor %}
         </tbody>

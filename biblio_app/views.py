@@ -756,7 +756,7 @@ def exportar_excel_prestamos(request):
 
     # Guardar el libro de trabajo como un archivo Excel
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="prestamos.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="prestamos_completos.xlsx"'
     wb.save(response)
     
     return response
@@ -879,9 +879,11 @@ def exportar_excel_prestamos_alumno(request):
             ])
 
     # Guardar el libro de trabajo como un archivo Excel
+    nombre_archivo = f"{ws.title}.xlsx"  # Utiliza el título del libro de trabajo en el nombre del archivo
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="prestamos.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
     wb.save(response)
+
     
     return response
 
