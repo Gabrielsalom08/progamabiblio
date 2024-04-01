@@ -44,6 +44,7 @@
 </style>
 
 <h3>Editar Alumn@</h3>
+{% if user.is_authenticated %}
 <form method="post">
     {% csrf_token %}
     <label for="nombre">Nombre:</label>
@@ -58,4 +59,10 @@
     <input type="text" name="clase" value="{{ alumno.clase|default_if_none:'' }}"><br>
     <button type="submit" class="btn btn-primary">Guardar cambios</button>
 </form>
+{%else%}
+<div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black;" >
+    Favor de iniciar sesión para poder hacer uso de todas las funciones del sistema.
+    <a href="{% url 'login' %}" class="alert-link" >Haz Click Aqui Para Iniciar Sesión</a>
+  </div>
+{%endif%}
 {% endblock %}
