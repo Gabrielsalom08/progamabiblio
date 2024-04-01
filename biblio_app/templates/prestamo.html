@@ -9,6 +9,7 @@
       <h2>HISTORIAL DE PRÉSTAMOS</h2>
       
       <div>
+        {% if user.is_authenticated %}
         <form method="post" action="{% url 'exportar_excel_prestamos_alumno' %}">
           {% csrf_token %}
           <div class="input-group mb-3">
@@ -26,11 +27,15 @@
             <p>Para exportar la informacion de los grupos de PF busca el grupo con "0" en lugar de PF Ejemplo: "PFB" seria "0B"</p>
           </div>
         </form>
+        {%endif%}
+        
       </div>
+      {% if user.is_authenticated %}
       <form method="post" action="{% url 'exportar_excel_prestamos' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">Exportar datos completos a Excel</button>
       </form>
+      {%endif%}
       <h5>Historial de Prestamos</h5>
       <table class="table table-hover">
         <thead>

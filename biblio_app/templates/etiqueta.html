@@ -90,23 +90,24 @@
         /* Oculta la cuarta columna cuando se imprime */
     
     </style>
-
+{% if user.is_authenticated %}
 <form method="POST" style="margin-left: 150px; margin-top: 20px;">
     {% csrf_token %}
-    <div class="input-group mb-3" style="max-width: 600px;">
-        <input type="text" name="copia" class="form-control" placeholder="Ingrese la copia">
+    <div class="input-group mb-3" style="max-width: 900px;">
+    <input type="text" name="copia" class="form-control" placeholder="Ingrese la clave de la copia" style="width: 130px; border-color: black; ">
+    <button type="submit" formaction="{% url 'agregar_copia_todos' %}" class="btn btn-primary" style="border-color: black;">Todas las etiquetas</button>
+    <button type="submit" formaction="{% url 'agregar_copia_fron' %}" class="btn btn-primary" style="border-color: black;">Solo etiquta delantera</button>
+    <button type="submit" formaction="{% url 'agregar_copia_tras' %}" class="btn btn-primary" style="border-color: black;">Solo etiqueta lomo</button>
+    <button type="submit" formaction="{% url 'agregar_copia_int' %}" class="btn btn-primary" style="border-color: black;">Solo etiqueta interior</button>
     </div>
-    <button type="submit" formaction="{% url 'agregar_copia_todos' %}" class="btn btn-primary">Todas las etiquetas</button>
-    <button type="submit" formaction="{% url 'agregar_copia_fron' %}" class="btn btn-primary">Solo etiquta delantera</button>
-    <button type="submit" formaction="{% url 'agregar_copia_tras' %}" class="btn btn-primary">Solo etiqueta lomo</button>
-    <button type="submit" formaction="{% url 'agregar_copia_int' %}" class="btn btn-primary">Solo etiqueta interior</button>
+    
 </form>
 
 <form method="POST" style="margin-left: 150px; margin-top: 20px;" action="{% url 'agregar_copia_vacio' %}">
     {% csrf_token %}
-    <div class="input-group mb-3"  style="max-width: 600px;">
-        <input type="text" name="copia" class="form-control" placeholder="Ingrese numero de etiquetas vacias">
-        <button type="submit" class="btn btn-success">Agregar etiquetas vacias</button>
+    <div class="input-group mb-3"  style="max-width: 500px;">
+        <input type="text" name="copia" class="form-control" placeholder="Ingrese numero de etiquetas vacias" style="border-color: black";>
+        <button type="submit" class="btn btn-primary" style="border-color: black;">Agregar etiquetas vacias</button>
         <p>El numero de etiquetas vacias se sobreescribe asi que si ya introduciste un numero y necesitas eliminar las etiquetas vacias solo pon 0 o si necesitas un numero diferente solo introduce el numero correcto</p>
     </div>
 </form>
@@ -119,6 +120,14 @@
 
 <!-- Botón para imprimir tabla -->
 <button onclick="window.print()" style="margin-left: 150px; margin-top: 20px;" class="btn btn-success">Imprimir tabla</button>
+{%else%}
+<center>
+<div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; width: 500px; margin-top: 100px;" >
+            Favor de iniciar sesión para poder hacer uso de todas las funciones del sistema.
+            <a href="{% url 'login' %}" class="alert-link" >Haz Click Aqui Para Iniciar Sesión</a>
+          </div>
+</center>
+{%endif%}
 <p style="margin-left: 150px; margin-top: 20px; margin-right: 150px; text-align: justify; color: red;">IMPORTANTE PARA QUE LAS ETIQUTAS SALGAN DE MANERA CORRECTA ES IMPORTANTE QUE SELECCIONES LA IMPRESORA PARA ETIQUETAS</p>
     <center>
         <table class="print-table">
