@@ -16,6 +16,7 @@ from django.db.models.functions import Concat
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from django.contrib.auth.decorators import login_required
 
 listacopiasfront=[]
 listacopiastras=[]
@@ -187,7 +188,7 @@ def alumno_pest(request):
     # Devolver una respuesta con la lista de alumnos encontrados
     return render(request, 'alumnos.html', {"current_tab": "alumno", "alumnos": alumnos})
 
-
+@login_required
 def agregar_alum(request):
     if request.method == 'POST':
         # Obtener los datos del formulario
@@ -216,6 +217,7 @@ def alumno_detalle(request, pk):
     alumno_obj = get_object_or_404(Alumno, clave=pk)
     return render(request, 'alumno_detalle.html', {'alumno': alumno_obj})
 
+@login_required #verifica que este iniciada sesion
 def editar_alumno(request, pk):
     alumno_obj = get_object_or_404(Alumno, clave=pk)
 
@@ -229,6 +231,7 @@ def editar_alumno(request, pk):
 
     return render(request, 'editar_alumno.html', {'alumno': alumno_obj})
 
+@login_required #verifica que este iniciada sesion
 def eliminar_alumno(request, pk):
     alumno_obj = get_object_or_404(Alumno, clave=pk)
     print(alumno_obj)
@@ -239,6 +242,7 @@ def eliminar_alumno(request, pk):
 
     return render(request, 'borrar_alumno.html', {'alumno': alumno_obj})
 
+@login_required #verifica que este iniciada sesion
 def cargar_desde_excel(request):
     if request.method == 'POST' and 'excel_file' in request.FILES:
         excel_file = request.FILES['excel_file']
@@ -277,6 +281,8 @@ def cargar_desde_excel(request):
 
     return render(request, 'tu_template_excel.html')
 
+
+@login_required #verifica que este iniciada sesion
 def borrar_todos_los_alumnos(request):
     try:
         # Verificar si existen alumnos con grupo igual a 6 y sacalibro verdadero
@@ -317,7 +323,7 @@ def libros_pest(request):
 
     return render(request, "libros.html", context={"current_tab": "libro", "libros": libros})
 
-
+@login_required #verifica que este iniciada sesion
 def agregar_libros(request):
     if request.method == 'POST':
         try:
@@ -350,6 +356,7 @@ def agregar_libros(request):
 
     return redirect('/libro')
 
+@login_required #verifica que este iniciada sesion
 def agregar_copia(request):
     if request.method == 'POST':
         # Obtener el código del libro del formulario
@@ -380,6 +387,7 @@ def libro_detalle(request, codigolibro):
     libro_obj = get_object_or_404(Libro, codigolibro=codigolibro)
     return render(request, 'libros_detalle.html', {'libro': libro_obj})
 
+@login_required #verifica que este iniciada sesion
 def editar_libro(request, codigolibro):
     libro_obj = get_object_or_404(Libro, codigolibro=codigolibro)
 
@@ -420,7 +428,7 @@ def editar_libro(request, codigolibro):
     return render(request, 'editar_libro.html', {'libro': libro_obj})
 
 
-
+@login_required #verifica que este iniciada sesion
 def eliminar_libro(request, codigolibro):
     libro_obj = get_object_or_404(Libro, codigolibro=codigolibro)
     if request.method == 'POST':
@@ -428,6 +436,7 @@ def eliminar_libro(request, codigolibro):
         return redirect('/libro')
     return render(request, 'eliminar_libro.html', {'libro': libro_obj})
 
+@login_required #verifica que este iniciada sesion
 def cargar_desde_excel_libro(request):
     if request.method == 'POST':
         if 'excel_file' in request.FILES:
@@ -480,6 +489,7 @@ def cargar_desde_excel_libro(request):
 
     return render(request, 'tu_template_excel.html')
 
+@login_required #verifica que este iniciada sesion
 def borrar_todos_los_libros(request):
     try:
         # Eliminar todos los libros
@@ -489,6 +499,7 @@ def borrar_todos_los_libros(request):
         error_message = 'Se produjo un error al intentar borrar todos los libros. Por favor, inténtalo de nuevo.'
         return render(request, 'error.html', {'mensaje': error_message})
 
+@login_required #verifica que este iniciada sesion
 def eliminar_libros_por_titulo(request):
     if request.method == 'POST':
         titulo = request.POST.get('titulo', None)
@@ -512,12 +523,14 @@ def busqueda_pest(request):
 
     return render(request,"busqueda.html",context={"current_tab": "busqueda", "copias": copias})
 
+
 def busqeda_detalle(request, clavecopia):
     # Usamos get_object_or_404 para obtener el objeto alumno o retornar un error 404 si no se encuentra
     copia_obj = get_object_or_404(Copia, clavecopia=clavecopia)
     
     return render(request, 'busquedadetalle.html', {'copia': copia_obj})
 
+@login_required #verifica que este iniciada sesion
 def cargar_copias_desde_excel(request):
     if request.method == 'POST':
         if 'excel_file' in request.FILES:
@@ -561,6 +574,7 @@ def cargar_copias_desde_excel(request):
 
     return render(request, 'tu_template_excel.html')
 
+@login_required #verifica que este iniciada sesion
 def eliminar_copia(request, pk):
     copia_obj = get_object_or_404(Copia, clavecopia=pk)
 
@@ -570,6 +584,7 @@ def eliminar_copia(request, pk):
         return redirect('/busqueda')
 
     return redirect('/busqueda')
+
 
 def nuevo_prestamo(request):
     if request.method == 'POST':
@@ -644,6 +659,7 @@ def ampliar_prestamo(request, pk):
     prestamo.save()
     return redirect('/retorno')
 
+@login_required #verifica que este iniciada sesion
 def exportar_excel(request):
     try:
         # Crear un libro de trabajo de Excel
@@ -676,6 +692,7 @@ def exportar_excel(request):
         # Puedes redirigir a una página de error o simplemente retornar un HttpResponse con un mensaje de error
         return HttpResponse("Ocurrió un error al exportar los datos a Excel.")
 
+@login_required #verifica que este iniciada sesion
 def exportar_excel_alumnos(request):
     # Crear un libro de trabajo de Excel
     wb = Workbook()
@@ -698,6 +715,8 @@ def exportar_excel_alumnos(request):
     wb.save(response)
     
     return response
+
+@login_required #verifica que este iniciada sesion
 def exportar_excel_libros(request):
     # Crear un libro de trabajo de Excel
     wb = Workbook()
@@ -731,6 +750,9 @@ def exportar_excel_libros(request):
     wb.save(response)
     
     return response
+
+
+@login_required #verifica que este iniciada sesion
 def exportar_excel_prestamos(request):
     # Crear un libro de trabajo de Excel
     wb = Workbook()
@@ -761,6 +783,7 @@ def exportar_excel_prestamos(request):
     
     return response
 
+@login_required #verifica que este iniciada sesion
 def pagar_multa(request, pk):
     if request.method == 'POST':
         try:
@@ -773,7 +796,7 @@ def pagar_multa(request, pk):
     else:
         return JsonResponse({'success': False, 'error': 'Método de solicitud incorrecto'})
     
-
+@login_required #verifica que este iniciada sesion
 def exportar_excel_multas(request):
     # Crear un libro de trabajo de Excel
     wb = Workbook()
@@ -803,6 +826,9 @@ def exportar_excel_multas(request):
     wb.save(response)
     
     return response
+
+
+@login_required #verifica que este iniciada sesion
 def exportar_excel_prestamos_grupo(request):
     # Crear un libro de trabajo de Excel
     wb = Workbook()
@@ -845,7 +871,7 @@ def exportar_excel_prestamos_grupo(request):
 
     return response
 
-
+@login_required #verifica que este iniciada sesion
 def exportar_excel_prestamos_alumno(request):
     # Crear un libro de trabajo de Excel
     wb = Workbook()
@@ -887,7 +913,9 @@ def exportar_excel_prestamos_alumno(request):
     
     return response
 
+
 # Vista para agregar copia
+@login_required #verifica que este iniciada sesion
 def agregar_copia_todos(request):
     if request.method == 'POST':
         copia = request.POST.get('copia')
@@ -904,6 +932,8 @@ def agregar_copia_todos(request):
                 listacopiastras.append(copia_tras)
                 listacopiasint.append(copia_int)
     return redirect('/etiqueta')
+
+@login_required #verifica que este iniciada sesion
 def agregar_copia_int(request):
     if request.method == 'POST':
         copia = request.POST.get('copia')
@@ -917,6 +947,7 @@ def agregar_copia_int(request):
                 listacopiasint.append(copia_int)
     return redirect('/etiqueta')
 
+@login_required #verifica que este iniciada sesion
 def agregar_copia_front(request):
     if request.method == 'POST':
         copia = request.POST.get('copia')
@@ -930,6 +961,7 @@ def agregar_copia_front(request):
                 listacopiasfront.append(copia_front)
     return redirect('/etiqueta')
 
+@login_required #verifica que este iniciada sesion
 def agregar_copia_tras(request):
     if request.method == 'POST':
         copia = request.POST.get('copia')
@@ -945,6 +977,7 @@ def agregar_copia_tras(request):
 
 
 # Vista para vaciar lista
+@login_required #verifica que este iniciada sesion
 def vaciar_lista(request):
     if request.method == 'POST':
         vaciocopias.clear()
@@ -954,6 +987,8 @@ def vaciar_lista(request):
         return redirect('/etiqueta')  # Redirigir a donde desees después de vaciar la lista
     return redirect('/etiqueta')  # Renderizar tu template
 
+
+@login_required #verifica que este iniciada sesion
 def agregar_alu(request):
     if request.method == 'POST':
         copia = request.POST.get('alumno')
@@ -967,6 +1002,7 @@ def agregar_alu(request):
     return redirect('/credencial')
 
 # Vista para vaciar lista
+@login_required #verifica que este iniciada sesion
 def vaciar_lista_alum(request):
     if request.method == 'POST':
         listacredenciales.clear()
@@ -974,30 +1010,39 @@ def vaciar_lista_alum(request):
         return redirect('/credencial')
     return redirect('/credencial')
 
+
+@login_required #verifica que este iniciada sesion
 def quitar_registro_front(request, copia_id):
     for instance in listacopiasfront:
         if instance.copia.clavecopia == copia_id:
             listacopiasfront.remove(instance)
             break
     return redirect('/etiqueta')
+
+@login_required #verifica que este iniciada sesion
 def quitar_registro_back(request, copia_id):
     for instance in listacopiastras:
         if instance.copia.clavecopia == copia_id:
             listacopiastras.remove(instance)
             break
     return redirect('/etiqueta')
+
+@login_required #verifica que este iniciada sesion
 def quitar_registro_int(request, copia_id):
     for instance in listacopiasint:
         if instance.copia.clavecopia == copia_id:
             listacopiasint.remove(instance)
             break
     return redirect('/etiqueta')
+
+@login_required #verifica que este iniciada sesion
 def quitar_registro_alum(request, alumno_id):
     # Encuentra el objeto copia por su ID
     copia = Alumno.objects.get(clave=alumno_id)
     listacredenciales.remove(copia)
     return redirect('/credencial')
 
+@login_required #verifica que este iniciada sesion
 def agregar_alu_vacia(request):
     if request.method == 'POST':
         copia = request.POST.get('alumno')
@@ -1008,6 +1053,7 @@ def agregar_alu_vacia(request):
                vacioalum.append(" ")
     return redirect('/credencial')
 
+@login_required #verifica que este iniciada sesion
 def agregar_copia_vacia(request):
     if request.method == 'POST':
         copia = request.POST.get('copia')
