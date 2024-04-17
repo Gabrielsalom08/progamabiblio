@@ -95,10 +95,10 @@
     {% csrf_token %}
     <div class="input-group mb-3" style="max-width: 900px;">
     <input type="text" name="copia" class="form-control" placeholder="Ingrese la clave de la copia" style="width: 130px; border-color: black; ">
-    <button type="submit" formaction="{% url 'agregar_copia_todos' %}" class="btn btn-primary" style="border-color: black;">Todas las etiquetas</button>
-    <button type="submit" formaction="{% url 'agregar_copia_fron' %}" class="btn btn-primary" style="border-color: black;">Solo etiquta delantera</button>
-    <button type="submit" formaction="{% url 'agregar_copia_tras' %}" class="btn btn-primary" style="border-color: black;">Solo etiqueta lomo</button>
-    <button type="submit" formaction="{% url 'agregar_copia_int' %}" class="btn btn-primary" style="border-color: black;">Solo etiqueta interior</button>
+    <button type="submit" formaction="{% url 'agregar_copia_todos' %}" class="btn btn-success" style="border-color: black;">Todas las etiquetas</button>
+    <button type="submit" formaction="{% url 'agregar_copia_fron' %}" class="btn btn-success" style="border-color: black;">Solo etiquta delantera</button>
+    <button type="submit" formaction="{% url 'agregar_copia_tras' %}" class="btn btn-success" style="border-color: black;">Solo etiqueta lomo</button>
+    <button type="submit" formaction="{% url 'agregar_copia_int' %}" class="btn btn-success" style="border-color: black;">Solo etiqueta interior</button>
     </div>
     
 </form>
@@ -107,7 +107,7 @@
     {% csrf_token %}
     <div class="input-group mb-3"  style="max-width: 500px;">
         <input type="text" name="copia" class="form-control" placeholder="Ingrese numero de etiquetas vacias" style="border-color: black";>
-        <button type="submit" class="btn btn-primary" style="border-color: black;">Agregar etiquetas vacias</button>
+        <button type="submit" class="btn btn-success" style="border-color: black;">Agregar etiquetas vacias</button>
         <p>El numero de etiquetas vacias se sobreescribe asi que si ya introduciste un numero y necesitas eliminar las etiquetas vacias solo pon 0 o si necesitas un numero diferente solo introduce el numero correcto</p>
     </div>
 </form>

@@ -20,16 +20,20 @@ from .views import *
 
 urlpatterns = [
     path('', inicio),
-    path('inicio', inicio),  # Asegúrate de agregar la barra al final para ser consistente
+    path('inicio', inicio),
     path('libro', libros_pest),
     path('credencial', credenciales),
     path('busqueda', busqueda_pest),
-    path('nuevoprestamo', nuevo_prestamo),
+    path('nuevoprestamo', nuevo_prestamo), #proceso de agregado de prestamos
     path('prestamo', prestamos),
     path('retorno', retornos),
     path('multa', multas),
     path('etiqueta', etiquetas),
     path('alumno', alumno_pest),
+    path('alumno_agregado', alumnoagre_pest),
+    path('libro_agregado', libroagregado),
+    path('copia_agregada', copiaagregada),
+    path('prestamo_nuevo', nuevoprestamo), #pestaña despues de agregar
     path('', include("django.contrib.auth.urls")),
     path('copia/eliminar/<int:pk>/', eliminar_copia, name='eliminar_copia'),
     path('exportar_excel_libros/', exportar_excel_libros, name='exportar_excel_libros'),

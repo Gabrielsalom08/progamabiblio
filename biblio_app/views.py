@@ -24,6 +24,10 @@ listacopiasint=[]
 listacredenciales=[]
 vaciocopias=[]
 vacioalum=[]
+alumnoult=[]
+libroult=[]
+copiault=[]
+prestault=[]
 
 class auxiliar:
     def __init__(self, modelo_existente, campo_auxiliar):
@@ -39,6 +43,34 @@ def get_server_time(request):
     return JsonResponse({'server_time': server_time})
 
 #register your models here
+@login_required
+def alumnoagre_pest(request):
+    alumnos = Alumno.objects.all()
+    # Devolver una respuesta con la lista de alumnos encontrados
+    ultimo=alumnoult[0]
+    return render(request, 'alumnos.html', {"current_tab": "alumno", "alumnos": alumnos,"ultimo": alumnoult})
+
+@login_required
+def copiaagregada(request):
+    libros = Libro.objects.all()
+    ultimacopia=copiault[0]
+    return render(request, "libros.html", context={"current_tab": "libro", "libros": libros,"copiault":ultimacopia})
+    
+
+@login_required
+def libroagregado(request):
+    libros = Libro.objects.all()
+    ultimolibro=libroult[0]
+    return render(request, "libros.html", context={"current_tab": "libro", "libros": libros,"libroult":ultimolibro})
+
+def nuevoprestamo(request):
+    prestamo = Prestamo.objects.all()
+    if prestault:
+        ultimo=prestault[0]
+    else:
+        ultimo=None
+    return render(request, "prestamo.html", context={"current_tab": "prestamo", "prestamo": prestamo,"ultimo":ultimo})
+
 
 # Create your views here.
 def inicio(request):
@@ -205,8 +237,11 @@ def agregar_alum(request):
             # Intentar crear una instancia de Alumno con los datos proporcionados
             alumno_item = Alumno(nombre=nombre, apellido=apellido, grupo=grupo,clase=clase)
             alumno_item.full_clean()  # Validar los datos del modelo
-            alumno_item.save()  # Guardar el objeto en la base de datos
-            return redirect('/alumno')
+            alumno_item.save()  # Guardar el objeto en la base de datosalumnos = Alumno.objects.all() #carga base de alumnos
+            alumnoult.clear()
+            alumnoult.append(alumno_item)
+            return redirect('/alumno_agregado')
+        
         except ValidationError as e:
             # Si se produce una excepción de validación, mostrar un mensaje de error
             return render(request, 'error.html', {'mensaje': '; '.join(e.messages)})
@@ -348,7 +383,9 @@ def agregar_libros(request):
                 )
             libro_item.full_clean()  # Realiza todas las validaciones del modelo
             libro_item.save()
-            return redirect('/libro')
+            libroult.clear()
+            libroult.append(libro_item)
+            return redirect('/libro_agregado')
         
         except ValidationError as e:
             # Si se produce una excepción de validación, mostrar un mensaje de error
@@ -371,9 +408,10 @@ def agregar_copia(request):
             
             # Guardar la instancia de Copia en la base de datos
             copia_item.save()
-            
+            copiault.clear()
+            copiault.append(copia_item)
             # Redireccionar a la página de libros
-            return redirect('/libro')
+            return redirect('/copia_agregada')
         else:
             # Si el libro no existe, puedes mostrar un mensaje de error o redireccionar a una página de error
            return render(request, 'error.html', {'mensaje': 'El codigo de libro introducido no corresoponde an ningun libro en la base favor de verificarlo'})
@@ -624,8 +662,9 @@ def nuevo_prestamo(request):
                 # Actualizar estado de sacalibro en alumno
                 alumno.sacalibro = True
                 alumno.save()
-
-                return redirect('/prestamo')
+                prestault.clear()
+                prestault.append(prestamo)
+                return redirect('/prestamo_nuevo')
             else:
                 error_message = 'La copia no está disponible.'
                 return render(request, 'error.html', {'mensaje': error_message})

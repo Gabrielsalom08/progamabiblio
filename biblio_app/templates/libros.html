@@ -125,6 +125,16 @@
                     
                 </form>
                 {% endif %}
+                {%if libroult %}
+                    <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;" >
+                        Se ha agregado exitosamente a: {{libroult.titulo}} con la clave {{libroult.codigolibro|stringformat:"06d"}}
+                    </div>
+                {%endif%}
+                {%if copiault %}
+                    <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;" >
+                        Se ha agregado exitosamente una copia de: {{copiault.codigolibro.titulo}} con la clave de copia {{copiault.clavecopia|stringformat:"06d"}}
+                    </div>
+                {%endif%}
                 <h6> Para mostrar todos los libros después de una búsqueda realiza una búsqueda sin contenido o aprieta el botón de libros otra vez</h6>
                 <p>{{ libros|length }} libros registrados</p>
             </div>

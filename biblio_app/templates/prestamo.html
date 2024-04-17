@@ -28,8 +28,12 @@
           </div>
         </form>
         {%endif%}
-        
       </div>
+      {%if ultimo %}
+            <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;" >
+                Se ha creado un prestamo del alumn@ {{ultimo.clave_alumno.clave|stringformat:"05d"}} {{ultimo.clave_alumno}} y el libro {{ultimo.clave_copia.clavecopia|stringformat:"06d"}} {{ultimo.clave_copia.codigolibro.titulo}} 
+              </div>
+            {%endif%}
       {% if user.is_authenticated %}
       <form method="post" action="{% url 'exportar_excel_prestamos' %}">
         {% csrf_token %}

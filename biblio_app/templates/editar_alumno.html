@@ -12,7 +12,7 @@
     }
 
     h3 {
-        color: #1C4E46;
+        color: #ffffff;
     }
 
     form {
@@ -45,6 +45,7 @@
 
 <h3>Editar Alumn@</h3>
 {% if user.is_authenticated %}
+<h7>Para los alumnos de PF o preprimaria debes poner el Año como "0"</h7>
 <form method="post">
     {% csrf_token %}
     <label for="nombre">Nombre:</label>
@@ -54,7 +55,7 @@
     <label for="clave">Clave:</label>
     <input type="text" name="clave" value="{{ alumno.clave }}"><br>
     <label for="grupo">Año:</label>
-    <input type="text" name="grupo" value="{{ alumno.grupo }}"><br>
+    <input type="number" name="grupo" value="{{ alumno.grupo }}"><br>
     <label for="clase">Grupo:</label>
     <input type="text" name="clase" value="{{ alumno.clase|default_if_none:'' }}"><br>
     <button type="submit" class="btn btn-primary">Guardar cambios</button>
