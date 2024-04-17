@@ -11,20 +11,18 @@
         font-size: 18px;
     }
 
-    h2 {
-        color: #1C4E46;
+    h3 {
+        color: #ffffff;
     }
 
     form {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        margin-bottom: 100px;
+        align-items: center;    
     }
 
     label {
         color: white;
-        margin-top: 10px;
     }
 
     input {
@@ -40,14 +38,14 @@
     button {
         background-color: white;
         color: #1C4E46;
-        padding: 10px 20px;
         border: none;
         cursor: pointer;
-        margin-top: 10px;
     }
 </style>
 
-<h2>Editar Alumno</h2>
+<h3>Editar Alumn@</h3>
+{% if user.is_authenticated %}
+<h7>Para los alumnos de PF o preprimaria debes poner el Año como "0"</h7>
 <form method="post">
     {% csrf_token %}
     <label for="nombre">Nombre:</label>
@@ -57,9 +55,15 @@
     <label for="clave">Clave:</label>
     <input type="text" name="clave" value="{{ alumno.clave }}"><br>
     <label for="grupo">Año:</label>
-    <input type="text" name="grupo" value="{{ alumno.grupo }}"><br>
+    <input type="number" name="grupo" value="{{ alumno.grupo }}"><br>
     <label for="clase">Grupo:</label>
     <input type="text" name="clase" value="{{ alumno.clase|default_if_none:'' }}"><br>
     <button type="submit" class="btn btn-primary">Guardar cambios</button>
 </form>
+{%else%}
+<div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black;" >
+    Favor de iniciar sesión para poder hacer uso de todas las funciones del sistema.
+    <a href="{% url 'login' %}" class="alert-link" >Haz Click Aqui Para Iniciar Sesión</a>
+  </div>
+{%endif%}
 {% endblock %}

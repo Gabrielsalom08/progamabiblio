@@ -14,10 +14,12 @@
             </div>
         </nav>
         <div class="row mt-4">
+            {% if user.is_authenticated %}
             <form method="post" action="{% url 'exportar_excel' %}" style="margin-left: 10px;">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Exportar Datos</button>
+                <button type="submit" class="btn btn-primary">Exportar copias a excel</button>
             </form>     
+            {%endif%}
             <h6> Para mostrar todos los libros despues de una busqueda realiza una busqueda sin contenido o apreta el boton de busqueda otra vez</h6>
             <p>{{ copias|length }} copias registradas</p>
         </div>

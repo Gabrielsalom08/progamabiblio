@@ -10,10 +10,12 @@
             </div>
         </nav>
         <div class="row mt-4">
+            {% if user.is_authenticated %}
             <form method="post" action="{% url 'exportar_excel_multas' %}" style="margin-left: 10px;">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">Exportar Datos a excel</button>
             </form>     
+            {%endif%}
         </div>
         <div class="row mt-4">
             <div class="container" style="overflow-y:auto;">

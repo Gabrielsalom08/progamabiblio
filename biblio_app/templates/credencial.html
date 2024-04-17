@@ -45,7 +45,7 @@
           margin: 0; /* Sin márgenes */
           border-collapse: collapse;
           font-size: 15px;
-          border: 1px solid black; /* Borde de 1px sólido negro */
+          border: 1px solid rgb(255, 255, 255); /* Borde de 1px sólido negro */
       }
   
       .print-table td {
@@ -56,10 +56,11 @@
           padding: 5mm; /* Margen de 5 mm en todas las celdas */
           margin-top: 1.3cm; /* Margen superior */
           page-break-inside: avoid; /* Evitar que las celdas se dividan entre páginas */
-          border: 1px solid black; /* Borde de 1px sólido negro */
+          border: 1px solid rgb(255, 255, 255); /* Borde de 1px sólido negro */
       }
   }
   </style>
+  {% if user.is_authenticated %}
  <form method="POST" action="{% url 'agregar_alumno' %}" style="margin-left: 150px; margin-top: 20px;">
     {% csrf_token %}
     <div class="input-group mb-3"  style="max-width: 600px;">
@@ -76,6 +77,14 @@
   </form>
   <button onclick="window.print()" style="margin-left: 150px; margin-top: 20px;" class="btn btn-success">Imprimir tabla</button>
   <center>
+    {%else%}
+    <center>
+    <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; width: 500px; margin-top: 100px;" >
+                Favor de iniciar sesión para poder hacer uso de todas las funciones del sistema.
+                <a href="{% url 'login' %}" class="alert-link" >Haz Click Aqui Para Iniciar Sesión</a>
+              </div>
+    </center>
+    {%endif%}
   <table class="print-table">
     {% for alumno in lista %}
     {% if forloop.counter0|divisibleby:2 %}
