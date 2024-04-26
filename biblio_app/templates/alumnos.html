@@ -73,9 +73,7 @@
             </nav>
             {%if ultimo %}
             <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;" >
-                {%for ultimo in ultimo%}
-                Se ha agregado exitosamente a: {{ultimo}} con la clave {{ultimo.clave|stringformat:"05d"}}
-                {%endfor%}
+                Se ha agregado exitosamente a: {{ultimo.nombre}} {{ultimo.apellido}} con la clave {{ultimo.clave|stringformat:"05d"}}
               </div>
             {%endif%}
             <h6 style="width: auto;"> Para buscar a prepimaria busca 0 seguido por el grupo ejemplo "0A" para buscar a PFA</h6>
