@@ -65,3 +65,15 @@ class Copia(models.Model):
 @receiver(pre_delete, sender=Libro)
 def eliminar_copias_asociadas(sender, instance, **kwargs):
     Copia.objects.filter(codigolibro=instance).delete()
+
+class LastUpdate(models.Model):
+    timestamp = models.DateTimeField(auto_now=True)
+
+    @staticmethod
+    def get_solo():
+        if not LastUpdate.objects.exists():
+            LastUpdate.objects.create()
+        return LastUpdate.objects.first()
+
+    def __str__(self):
+        return f"Last update at {self.timestamp}"

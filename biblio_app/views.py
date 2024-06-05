@@ -346,7 +346,7 @@ def borrar_todos_los_alumnos(request):
         Alumno.objects.filter(grupo__gte=6).delete()
         
         # Modificar todos los datos en la tabla de alumnos sumando uno al valor de grupo
-        Alumno.objects.all().update(grupo=models.F('grupo') + 1)
+        Alumno.objects.exclude(grupo=-1).update(grupo=models.F('grupo') + 1)
         
         # Redireccionar a la página de alumnos
         return redirect('/alumno')  # Cambia 'alumnos' por la URL de la página de alumnos en tu proyecto
@@ -491,7 +491,7 @@ def eliminar_libro(request, codigolibro):
         return redirect('/libro')
     return render(request, 'eliminar_libro.html', {'libro': libro_obj})
 
-@login_required #verifica que este iniciada sesion
+@login_required  # Verifica que la sesión esté iniciada
 def cargar_desde_excel_libro(request):
     if request.method == 'POST':
         if 'excel_file' in request.FILES:
@@ -508,30 +508,35 @@ def cargar_desde_excel_libro(request):
             
             libroult.clear()
             for index, row in df.iterrows():
-                if any(pd.isna(row[col]) for col in required_columns):
-                    error_message = "Los campos obligatorios no pueden estar vacíos."
-                    return render(request, 'error.html', {'mensaje': error_message})
+                # Verificar solo las columnas obligatorias
+                #if any(pd.isna(row[col]) for col in required_columns):
+                #    error_message = "Los campos obligatorios no pueden estar vacíos."
+                #    return render(request, 'error.html', {'mensaje': error_message})
 
-                if 'codigolibro' in df.columns and pd.notna(row['codigolibro']):
-                    codigolibro = row['codigolibro']
-                else:
-                    codigolibro = None
-
-                fechapublicacion = int(row.get('fechapublicacion', 0))  # Cambiar a entero
+                # Las columnas opcionales se obtienen si existen, de lo contrario se les asigna un valor por defecto
+                codigolibro = row['codigolibro'] if 'codigolibro' in df.columns and pd.notna(row['codigolibro']) else None
+                fechapublicacion = int(row['fechapublicacion']) if 'fechapublicacion' in df.columns and pd.notna(row['fechapublicacion']) else 0
+                ilustrador = row['ilustrador'] if 'ilustrador' in df.columns else ''
+                numerotomo = row['tomo'] if 'tomo' in df.columns else ''
+                caracteristicasespeciales = row['caracteristicas'] if 'caracteristicas' in df.columns else ''
+                dewy = row['ubicacionbiblio'] if 'ubicacionbiblio' in df.columns else ''
+                publicodirigido = row['publico'] if 'publico' in df.columns else ''
+                item = row['item'] if 'item' in df.columns else ''
+                palabrasclave = row['palabras_clave'] if 'palabras_clave' in df.columns else ''
 
                 libro_item = Libro(
                     codigolibro=codigolibro,
                     titulo=row['titulo'],
                     autor=row['autor'],
                     editorial=row['editorial'],
-                    ilustrador=row.get('ilustrador', ''),
+                    ilustrador=ilustrador,
                     fechapublicacion=fechapublicacion,
-                    numerotomo=row.get('tomo', ''),
-                    caracteristicasespeciales=row.get('caracteristicas', ''),
-                    dewy=row.get('ubicacionbiblio', ''),
-                    publicodirigido=row.get('publico', ''),
-                    item=row.get('item', ''),
-                    palabrasclave=row.get('palabras_clave', ''),
+                    numerotomo=numerotomo,
+                    caracteristicasespeciales=caracteristicasespeciales,
+                    dewy=dewy,
+                    publicodirigido=publicodirigido,
+                    item=item,
+                    palabrasclave=palabrasclave,
                 )
                 print(libro_item)
                 try:
@@ -541,7 +546,7 @@ def cargar_desde_excel_libro(request):
                 except ValidationError as e:
                     error_message = '; '.join(e.messages)
                     print(error_message)
-                    
+                    return render(request, 'error.html', {'mensaje': error_message})
 
             return redirect('/libro_agregado_excel')  # Redirigir a la página de libros después de cargar las copias
 
@@ -1123,8 +1128,6 @@ def agregar_copia_vacia(request):
                 vacio= auxiliar("",0)
                 vaciocopias.append(vacio)
     return redirect('/etiqueta')
-
-
 
 
 
