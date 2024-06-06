@@ -48,13 +48,23 @@ def alumnoagre_pest(request):
     alumnos = Alumno.objects.all()
     # Devolver una respuesta con la lista de alumnos encontrados
     ultimo=alumnoult[0]
-    return render(request, 'alumnos.html', {"current_tab": "alumno", "alumnos": alumnos,"ultimo": alumnoult})
+    return render(request, 'alumnos.html', {"current_tab": "alumno", "alumnos": alumnos,"ultimo": ultimo})
+
+@login_required
+def alumnoagre_pest_excel(request):
+    ultimo=alumnoult
+    return render(request, 'agregado_excel_alumnos.html', {"alumnos": ultimo})
 
 @login_required
 def copiaagregada(request):
     libros = Libro.objects.all()
     ultimacopia=copiault[0]
     return render(request, "libros.html", context={"current_tab": "libro", "libros": libros,"copiault":ultimacopia})
+
+@login_required
+def copiaagregadaexcel(request):
+    ultimacopia=copiault
+    return render(request, "agregado_excel_copias.html", context={"copias":ultimacopia})
     
 
 @login_required
@@ -62,6 +72,12 @@ def libroagregado(request):
     libros = Libro.objects.all()
     ultimolibro=libroult[0]
     return render(request, "libros.html", context={"current_tab": "libro", "libros": libros,"libroult":ultimolibro})
+
+@login_required
+def libroagregadoexcel(request):
+    ultimolibro=libroult
+    return render(request, "agregado_excel_libros.html", context={"libros":ultimolibro})
+
 
 def nuevoprestamo(request):
     prestamo = Prestamo.objects.all()
@@ -285,12 +301,13 @@ def cargar_desde_excel(request):
 
         required_columns = ['nombre', 'apellido', 'grado']
         missing_columns = [col for col in required_columns if col not in df.columns]
+       
 
         if missing_columns:
             missing_columns_str = ', '.join(missing_columns)
             error_message = f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}."
             return render(request, 'error.html', {'mensaje': error_message})
-
+        alumnoult.clear()
         for index, row in df.iterrows():
             if 'clave' in df.columns and not pd.isna(row['clave']):
                 clave = row['clave']
@@ -308,11 +325,11 @@ def cargar_desde_excel(request):
             try:
                 alumno_item.full_clean()  # Validar los datos del modelo
                 alumno_item.save()  # Guardar el objeto en la base de datos
+                alumnoult.append(alumno_item)
             except ValidationError as e:
                 error_message = '; '.join(e.messages)
-                return render(request, 'error.html', {'mensaje': error_message})
 
-        return redirect('/alumno')
+        return redirect('/alumno_agregado_excel')
 
     return render(request, 'tu_template_excel.html')
 
@@ -329,7 +346,7 @@ def borrar_todos_los_alumnos(request):
         Alumno.objects.filter(grupo__gte=6).delete()
         
         # Modificar todos los datos en la tabla de alumnos sumando uno al valor de grupo
-        Alumno.objects.all().update(grupo=models.F('grupo') + 1)
+        Alumno.objects.exclude(grupo=-1).update(grupo=models.F('grupo') + 1)
         
         # Redireccionar a la página de alumnos
         return redirect('/alumno')  # Cambia 'alumnos' por la URL de la página de alumnos en tu proyecto
@@ -474,7 +491,7 @@ def eliminar_libro(request, codigolibro):
         return redirect('/libro')
     return render(request, 'eliminar_libro.html', {'libro': libro_obj})
 
-@login_required #verifica que este iniciada sesion
+@login_required  # Verifica que la sesión esté iniciada
 def cargar_desde_excel_libro(request):
     if request.method == 'POST':
         if 'excel_file' in request.FILES:
@@ -488,42 +505,50 @@ def cargar_desde_excel_libro(request):
                 missing_columns_str = ', '.join(missing_columns)
                 error_message = f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}."
                 return render(request, 'error.html', {'mensaje': error_message})
-
+            
+            libroult.clear()
             for index, row in df.iterrows():
-                if any(pd.isna(row[col]) for col in required_columns):
-                    error_message = "Los campos obligatorios no pueden estar vacíos."
-                    return render(request, 'error.html', {'mensaje': error_message})
+                # Verificar solo las columnas obligatorias
+                #if any(pd.isna(row[col]) for col in required_columns):
+                #    error_message = "Los campos obligatorios no pueden estar vacíos."
+                #    return render(request, 'error.html', {'mensaje': error_message})
 
-                if 'codigolibro' in df.columns and pd.notna(row['codigolibro']):
-                    codigolibro = row['codigolibro']
-                else:
-                    codigolibro = None
-
-                fechapublicacion = int(row.get('fechapublicacion', None))  # Cambiar a entero
+                # Las columnas opcionales se obtienen si existen, de lo contrario se les asigna un valor por defecto
+                codigolibro = row['codigolibro'] if 'codigolibro' in df.columns and pd.notna(row['codigolibro']) else None
+                fechapublicacion = int(row['fechapublicacion']) if 'fechapublicacion' in df.columns and pd.notna(row['fechapublicacion']) else 0
+                ilustrador = row['ilustrador'] if 'ilustrador' in df.columns else ''
+                numerotomo = row['tomo'] if 'tomo' in df.columns else ''
+                caracteristicasespeciales = row['caracteristicas'] if 'caracteristicas' in df.columns else ''
+                dewy = row['ubicacionbiblio'] if 'ubicacionbiblio' in df.columns else ''
+                publicodirigido = row['publico'] if 'publico' in df.columns else ''
+                item = row['item'] if 'item' in df.columns else ''
+                palabrasclave = row['palabras_clave'] if 'palabras_clave' in df.columns else ''
 
                 libro_item = Libro(
                     codigolibro=codigolibro,
                     titulo=row['titulo'],
                     autor=row['autor'],
                     editorial=row['editorial'],
-                    ilustrador=row.get('ilustrador', None),
+                    ilustrador=ilustrador,
                     fechapublicacion=fechapublicacion,
-                    numerotomo=row.get('tomo', None),
-                    caracteristicasespeciales=row.get('caracteristicas', None),
-                    dewy=row.get('ubicacionbiblio', None),
-                    publicodirigido=row.get('publico', None),
-                    item=row.get('item', None),
-                    palabrasclave=row.get('palabras_clave', None),
+                    numerotomo=numerotomo,
+                    caracteristicasespeciales=caracteristicasespeciales,
+                    dewy=dewy,
+                    publicodirigido=publicodirigido,
+                    item=item,
+                    palabrasclave=palabrasclave,
                 )
-
+                print(libro_item)
                 try:
                     libro_item.full_clean()
                     libro_item.save()
+                    libroult.append(libro_item)
                 except ValidationError as e:
                     error_message = '; '.join(e.messages)
+                    print(error_message)
                     return render(request, 'error.html', {'mensaje': error_message})
 
-            return redirect('/libro')  # Redirigir a la página de libros después de cargar las copias
+            return redirect('/libro_agregado_excel')  # Redirigir a la página de libros después de cargar las copias
 
     return render(request, 'tu_template_excel.html')
 
@@ -581,7 +606,7 @@ def cargar_copias_desde_excel(request):
                 missing_columns_str = ', '.join(missing_columns)
                 error_message = f"El archivo Excel no tiene las columnas necesarias: {missing_columns_str}."
                 return render(request, 'error.html', {'mensaje': error_message})
-
+            copiault.clear()
             try:
                 for index, row in df.iterrows():
                     codigolibro = row['codigolibro']
@@ -600,11 +625,11 @@ def cargar_copias_desde_excel(request):
                             clavealumno=None,  # Asignar None por defecto
                         )
                         copia_item.save()
+                        copiault.append(copia_item)
                     else:
                         error_message = f"No se encontró el libro con la clave: {codigolibro}"
-                        return render(request, 'error.html', {'mensaje': error_message})
 
-                return redirect('/libro')  # Redirigir a la página de copias después de cargar las copias
+                return redirect('/copia_agregada_excel')  # Redirigir a la página de copias después de cargar las copias
 
             except Exception as e:
                 error_message = 'Se produjo un error al intentar cargar las copias desde el archivo Excel. Por favor, inténtalo de nuevo.'
@@ -1103,8 +1128,6 @@ def agregar_copia_vacia(request):
                 vacio= auxiliar("",0)
                 vaciocopias.append(vacio)
     return redirect('/etiqueta')
-
-
 
 
 

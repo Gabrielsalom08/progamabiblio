@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<div class="col-md-10 mx-auto my-4">
+    <div class="row">
+        <div class="row mt-4">
+            <p>{{ copias|length }} copias agregadas</p>
+            <p>En caso de que no se agregen los registros o un registro en especifico del EXCEL favor de checar el formato del excel proporcionado ya que es muy probable que no se agregaron por un error en el formato</p>
+        </div>
+        <div class="container-fluid">
+            <div class="container-fluid table-responsive" style="overflow-y:auto; overflow-x: auto;" >
+                <table class="table table-hover" style="width: 90%;">
+                    <thead>
+                        <th>Clave copia</th>
+                        <th>Clave Libro</th>
+                        <th>Titulo</th>
+                    </thead>
+                    <tbody>
+                        {% for copia in copias %}
+                            <tr>
+                                <td>{{ copia.clavecopia|stringformat:"06d" }}</td>
+                                <td>{{ copia.codigolibro.codigolibro|stringformat:"06d" }}</td>
+                                <td>{{ copia.codigolibro.titulo }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready( function () {
+        $('.table').DataTable({
+            "paging": true,
+            "pageLength": 25 // Mostrar solo 30 elementos por página
+        });
+    });
+</script>
+{% endblock %}

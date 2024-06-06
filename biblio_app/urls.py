@@ -33,6 +33,9 @@ urlpatterns = [
     path('alumno_agregado', alumnoagre_pest),
     path('libro_agregado', libroagregado),
     path('copia_agregada', copiaagregada),
+    path('alumno_agregado_excel', alumnoagre_pest_excel),
+    path('libro_agregado_excel', libroagregadoexcel),
+    path('copia_agregada_excel', copiaagregadaexcel),
     path('prestamo_nuevo', nuevoprestamo), #pestaña despues de agregar
     path('', include("django.contrib.auth.urls")),
     path('copia/eliminar/<int:pk>/', eliminar_copia, name='eliminar_copia'),
