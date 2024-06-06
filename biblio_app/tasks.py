@@ -26,7 +26,7 @@ class TaskSingleton:
         self.scheduler = BackgroundScheduler()
 
         # Task to update multas
-        multas_trigger = CronTrigger(day_of_week='mon-fri', hour=8, minute='30-59')
+        multas_trigger = CronTrigger(day_of_week='mon-fri', hour=7, minute='30-59')
         self.scheduler.add_job(self.actualizar_multas, trigger=multas_trigger, misfire_grace_time=3600, max_instances=1)
         
 
@@ -34,7 +34,7 @@ class TaskSingleton:
         update_trigger = CronTrigger(minute='0-5')  # Runs every hour
         self.scheduler.add_job(self.update_last_update, trigger=update_trigger, misfire_grace_time=3600, max_instances=1)
 
-        backup_trigger = CronTrigger(day_of_week='mon-fri',  hour=14, minute='5-7')
+        backup_trigger = CronTrigger(day_of_week='mon-fri',  hour=16, minute='0-2')
         self.scheduler.add_job(self.backup_database, trigger=backup_trigger)
         self.scheduler.start()
 
