@@ -285,7 +285,6 @@ def editar_alumno(request, pk):
 @login_required #verifica que este iniciada sesion
 def eliminar_alumno(request, pk):
     alumno_obj = get_object_or_404(Alumno, clave=pk)
-    print(alumno_obj)
 
     if request.method == 'POST':
         alumno_obj.delete()
@@ -538,14 +537,12 @@ def cargar_desde_excel_libro(request):
                     item=item,
                     palabrasclave=palabrasclave,
                 )
-                print(libro_item)
                 try:
                     libro_item.full_clean()
                     libro_item.save()
                     libroult.append(libro_item)
                 except ValidationError as e:
                     error_message = '; '.join(e.messages)
-                    print(error_message)
                     return render(request, 'error.html', {'mensaje': error_message})
 
             return redirect('/libro_agregado_excel')  # Redirigir a la página de libros después de cargar las copias
@@ -751,7 +748,6 @@ def exportar_excel(request):
     
     except Exception as e:
         # Maneja la excepción imprimiendo el mensaje de error
-        print(f"Error en la función exportar_excel: {e}")
         
         # Puedes redirigir a una página de error o simplemente retornar un HttpResponse con un mensaje de error
         return HttpResponse("Ocurrió un error al exportar los datos a Excel.")
@@ -899,7 +895,6 @@ def exportar_excel_prestamos_grupo(request):
     ws = wb.active
     
     query = request.POST.get('clave_alum')
-    print(query)
     prestamos = None  # Inicializar la variable prestamos
     ws.title = "Préstamos de " + query
     # Encabezados de la tabla
@@ -942,7 +937,6 @@ def exportar_excel_prestamos_alumno(request):
     ws = wb.active
     
     query = request.POST.get('clave_alum')
-    print(query)
     prestamos = None  # Inicializar la variable prestamos
     ws.title = "Préstamos de " + query 
     # Encabezados de la tabla
