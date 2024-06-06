@@ -73,9 +73,7 @@
             </nav>
             {%if ultimo %}
             <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;" >
-                {%for ultimo in ultimo%}
-                Se ha agregado exitosamente a: {{ultimo}} con la clave {{ultimo.clave|stringformat:"05d"}}
-                {%endfor%}
+                Se ha agregado exitosamente a: {{ultimo.nombre}} {{ultimo.apellido}} con la clave {{ultimo.clave|stringformat:"05d"}}
               </div>
             {%endif%}
             <h6 style="width: auto;"> Para buscar a prepimaria busca 0 seguido por el grupo ejemplo "0A" para buscar a PFA</h6>
@@ -91,30 +89,35 @@
             </div>
             <div class="row" style="margin-top: 20px;">
                 <div class="container" style="overflow-y: auto; max-width: auto">
-                    <table class="table table-hover">
+                    <table class="table table-hover" style="font-size: small;">
                         <!-- Agrega estas líneas en el encabezado de la tabla -->
 <thead>
-    <td>Clave</td>
-    <td>Nombre</td>
-    <td>Apellido</td>
-    <td>Año</td>
+    <th scope="col">Clave</td>
+    <th scope="col">Nombre</td>
+    <th scope="col">Apellido</td>
+    <th scope="col">Año</td>
     {% if user.is_authenticated %}
-    <td>Acciones</td> <!-- Nueva columna para botones -->
+    <th scope="col">Acciones</td> <!-- Nueva columna para botones -->
     {%endif%}
 </thead>
 
 <tbody>
     {% for alumno in alumnos %}
         <tr>
-            <td>{{ alumno.clave|stringformat:"05d" }}</td>
+            <th scope="row">{{ alumno.clave|stringformat:"05d" }}</th>
             <td>{{ alumno.nombre }}</td>
             <td>{{ alumno.apellido }}</td>
             <td>
-                {% if alumno.grupo == 0 %}
-                    {% if alumno.clase%} PF{{alumno.clase}}  {% else %} PF {%endif%}
+            {% if alumno.grupo == 0 %}
+                {% if alumno.clase %} PF{{alumno.clase}}  {% else %} PF {% endif %}
+            {% else %}
+                {% if alumno.grupo == -1 %}
+                    Maestr@
                 {% else %}
-                    {% if alumno.clase%} {{ alumno.grupo }}{{alumno.clase}} {% else %} {{ alumno.grupo }} {%endif%}
+                    {% if alumno.clase %} {{ alumno.grupo }}{{alumno.clase}} {% else %} {{ alumno.grupo }} {% endif %}
                 {% endif %}
+            {% endif %}
+            
             </td>
             <td>
                 {% if user.is_authenticated %}
@@ -172,13 +175,17 @@
         }
     }
 </script>
+
+<!-- Incluye jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Incluye DataTables -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
 <script>
-    $(document).ready( function () {
-        $('.table').DataTable({
-            "paging": true,
-            "pageLength": 20 // Mostrar solo 30 elementos por página
-        });
-    });
+$(document).ready( function () {
+    $('table.table-hover').DataTable();
+});
 </script>
 
 {% endblock %}

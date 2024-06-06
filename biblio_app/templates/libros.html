@@ -3,8 +3,8 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-flex text-center justify-content-center allign-items-center" style="padding-top: 20px; max-width: 100%;">
-    <div class="row justify-content-center align-middle" style="margin-top: 10px; height:60px;max-width: 100%;">
+<div class="container-flex text-center justify-content-center align-items-center" style="padding-top: 20px; max-width: 100%;">
+    <div class="row justify-content-center align-middle" style="margin-top: 10px; height:60px; max-width: 100%;">
         <div class="col-md-4 text-center">
             <h4 style="margin-top: 15px;"> Registra un nuevo libro</h4>
         </div>
@@ -55,7 +55,7 @@
                     </tr>
                     <tr>
                         <td style="text-align:left; vertical-align:middle; padding-left:15px;">Fecha publicacion : </td>
-                        <td><input type="number" class="form-control" name="fechapubl"></td>  <!-- Cambiado a input type="number" -->
+                        <td><input type="number" class="form-control" name="fechapubl"></td>
                     </tr>
                     <tr>
                         <td style="text-align:left; vertical-align:middle; padding-left:15px;">Palabras clave : </td>
@@ -68,10 +68,8 @@
                     <tr>
                         <td colspan="2" style="align-items: center; align-self: center;"><button class="btn btn-primary" type="submit" style="align-self: center;"> Agregar libro</button></td>
                     </tr>
-                    {% endif %}
                 </table>
             </form>
-            {% if user.is_authenticated %}
             <form class="d-flex" action="/libro/agregar-copia/" method="post">
                 {% csrf_token %}
                 <table class="table">
@@ -99,12 +97,12 @@
             <button class="btn btn-danger" type="button" onclick="confirmarBorrarlibros()"> Borrar todos los libros</button>
             
             <h6>Para mostrar como deben de estar formateado el excel haz click a Cargar desde excel sin cargar ningún archivo</h6>
-            {%else%}
-        <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; max-width: 100%;" >
-            Favor de iniciar sesión para poder hacer uso de todas las funciones del sistema.
-            <a href="{% url 'login' %}" class="alert-link" >Haz Click Aqui Para Iniciar Sesión</a>
-          </div>
-        {%endif%}
+            {% else %}
+            <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; max-width: 100%;">
+                Favor de iniciar sesión para poder hacer uso de todas las funciones del sistema.
+                <a href="{% url 'login' %}" class="alert-link">Haz Click Aqui Para Iniciar Sesión</a>
+            </div>
+            {% endif %}
         </div>
     </div>
     <div class="col-md-8" style="max-width: 100%;">
@@ -117,29 +115,28 @@
                     </form>
                 </div>
             </nav>
-            <div class="row" style="margin-top: 20 px;">
+            <div class="row" style="margin-top: 20px;">
                 {% if user.is_authenticated %}
                 <form method="post" action="{% url 'exportar_excel_libros' %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary">Exportar libros a Excel</button>
-                    
                 </form>
                 {% endif %}
-                {%if libroult %}
-                    <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;" >
-                        Se ha agregado exitosamente a: {{libroult.titulo}} con la clave {{libroult.codigolibro|stringformat:"06d"}}
-                    </div>
-                {%endif%}
-                {%if copiault %}
-                    <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;" >
-                        Se ha agregado exitosamente una copia de: {{copiault.codigolibro.titulo}} con la clave de copia {{copiault.clavecopia|stringformat:"06d"}}
-                    </div>
-                {%endif%}
+                {% if libroult %}
+                <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;">
+                    Se ha agregado exitosamente a: {{libroult.titulo}} con la clave {{libroult.codigolibro|stringformat:"06d"}}
+                </div>
+                {% endif %}
+                {% if copiault %}
+                <div class="alert alert-warning" role="alert" style="background-color:#abd3cd; border-color: black; color: black; margin-top: 10px;">
+                    Se ha agregado exitosamente una copia de: {{copiault.codigolibro.titulo}} con la clave de copia {{copiault.clavecopia|stringformat:"06d"}}
+                </div>
+                {% endif %}
                 <h6> Para mostrar todos los libros después de una búsqueda realiza una búsqueda sin contenido o aprieta el botón de libros otra vez</h6>
                 <p>{{ libros|length }} libros registrados</p>
             </div>
             <div class="row" style="margin-top: 20px;">
-                <div class="container" style="overflow-y:auto ; width:fit-content;">
+                <div class="container" style="overflow-y:auto; width:fit-content;">
                     <table class="table table-hover" style="font-size: small;">
                         <thead>
                             <tr>
@@ -147,29 +144,26 @@
                                 <th scope="col">Titulo</th>
                                 <th scope="col">Autor</th>
                                 <th scope="col">Editorial</th>
-                                <th scope="col">Fecha de Publicación</th>
                                 <th scope="col">Ilustrador</th>
                                 {% if user.is_authenticated %}
-                                <th scope="col">Acciones</th>  
-                                {%endif%}
+                                <th scope="col">Acciones</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for libro in libros %}
                             <tr>
-                                <td>{{ libro.codigolibro|stringformat:"06d" }}</td>
+                                <th scope="row">{{ libro.codigolibro|stringformat:"06d"  }}</th>
                                 <td>{{ libro.titulo }}</td>
                                 <td>{{ libro.autor }}</td>
                                 <td>{{ libro.editorial }}</td>
-                                <td>{% if libro.fechapublicacion %}{{ libro.fechapublicacion }} {%endif%}</td>
                                 <td>{{ libro.ilustrador }}</td>
+                                {% if user.is_authenticated %}
                                 <td>
-                                    {% if user.is_authenticated %}
                                     <a href="{% url 'editar_libro' codigolibro=libro.codigolibro %}" class="btn btn-warning"><i class="bi bi-pencil"></i>-editar-</a>
                                     <a href="{% url 'eliminar_libro' codigolibro=libro.codigolibro %}" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i>eliminar</a>
-                                    {% endif %}
-                                    
                                 </td>
+                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -179,23 +173,17 @@
         </div>
     </div>
 </div>
+
+<!-- Incluye jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Incluye DataTables -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
 <script>
-    function confirmarBorrarlibros() {
-        if (confirm("¿Estás seguro de que quieres borrar a todos los libros esta accion borrara todos los libros que se encuentran registrados actualmente esta accion es permanente y no se puede deshacer?")) {
-            // Si el usuario confirma, redirige al servidor para borrar los datos
-            window.location.href = "/libro/borrar_todos";
-        } else {
-            // Si el usuario cancela, no hagas nada
-            // Puedes agregar un mensaje o realizar alguna acción adicional si lo deseas
-        }
-    }
+$(document).ready( function () {
+    $('table.table-hover').DataTable();
+});
 </script>
-<script>
-    $(document).ready( function () {
-        $('.table').DataTable({
-            "paging": true,
-            "pageLength":10 // Mostrar solo 30 elementos por página
-        });
-    });
-</script>
+
 {% endblock %}

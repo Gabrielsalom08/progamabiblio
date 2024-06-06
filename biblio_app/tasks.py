@@ -1,37 +1,56 @@
+# tasks.py
+import os
+import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+from django.db import connection
 from django.utils import timezone
-from datetime import datetime
 
 class TaskSingleton:
     _instance = None
+    _is_running = False
 
     def __new__(cls, *args, **kwargs):
-        if not cls._instance:
+        if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
 
     def __init__(self):
-        print("Creating TaskSingleton instance")  # Add this line for debugging
+        if TaskSingleton._is_running:
+            print("TaskSingleton instance is already running. Initialization aborted.")  # Debugging
+            return
+
+        print("Creating TaskSingleton instance")  # Debugging
         self.scheduler = BackgroundScheduler()
-        
-        # Define the trigger to run at any time between 6:30 am and 7:00 am every weekday
-        trigger = CronTrigger(day_of_week='mon-fri', hour=6, minute='0-59')
-        
-        self.scheduler.add_job(self.actualizar_multas, trigger=trigger, misfire_grace_time=3600, max_instances=1)
-        print("Scheduler added job")  # Add this line for debugging
+
+        # Task to update multas
+        multas_trigger = CronTrigger(day_of_week='mon-fri', hour=8, minute='30-59')
+        self.scheduler.add_job(self.actualizar_multas, trigger=multas_trigger, misfire_grace_time=3600, max_instances=1)
+        print("Scheduler added job for actualizar_multas")  # Debugging
+
+        # Task to update the database every hour
+        update_trigger = CronTrigger(minute='0-5')  # Runs every hour
+        self.scheduler.add_job(self.update_last_update, trigger=update_trigger, misfire_grace_time=3600, max_instances=1)
+        print("Scheduler added job for update_last_update")  # Debugging
+
         self.scheduler.start()
-        print("Scheduler started")  # Add this line for debugging
+        print("Scheduler started")  # Debugging
+
+        TaskSingleton._is_running = True
+        atexit.register(self._cleanup)
+
+    def _cleanup(self):
+        if 'TASK_SINGLETON_INITIALIZED' in os.environ:
+            del os.environ['TASK_SINGLETON_INITIALIZED']
 
     def actualizar_multas(self):
-        print("Executing actualizar_multas")  # Add this line for debugging
-        # Import models locally to avoid AppRegistryNotReady error
+        self.ensure_db_connection()
+        print("Executing actualizar_multas")  # Debugging
         from .models import Prestamo, Multa
-
         prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
-        print("Total active loans:", prestamos_activos.count())  # Add this line for debugging
+        print("Total active loans:", prestamos_activos.count())  # Debugging
         for prestamo in prestamos_activos:
-            print("Processing loan:", prestamo.id)  # Add this line for debugging
+            print("Processing loan:", prestamo.id)  # Debugging
             multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
             if multas.exists():
                 for multa in multas:
@@ -41,3 +60,21 @@ class TaskSingleton:
                         multa.save()
             else:
                 Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
+
+    def update_last_update(self):
+        self.ensure_db_connection()
+        print("Executing update_last_update")  # Debugging
+        from .models import LastUpdate
+        last_update = LastUpdate.get_solo()
+        last_update.timestamp = timezone.now()
+        last_update.save()
+        print("Updated LastUpdate timestamp")  # Debugging
+
+    def ensure_db_connection(self):
+        if connection.connection and not connection.is_usable():
+            print("Database connection was not usable, closing and reconnecting.")  # Debugging
+            connection.close()
+        connection.ensure_connection()
+
+def initialize_task_singleton():
+    TaskSingleton()
