@@ -90,10 +90,33 @@ def nuevoprestamo(request):
 
 # Create your views here.
 def inicio(request):
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     return render(request,"inicio.html",context={"current_tab": "inicio"})
 
 
 def prestamos(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     query = request.GET.get('q')
     if query:
         # Verificar si la consulta es un número puro
@@ -118,6 +141,18 @@ def prestamos(request):
 
 
 def retornos(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     query = request.GET.get('q')
     if query:
         # Verificar si la consulta es un número puro
@@ -139,6 +174,18 @@ def retornos(request):
     return render(request,"retorno.html",context={"current_tab": "retorno", "prestamo": prestamo})
 
 def multas(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     query = request.GET.get('q')
     if query:
         # Verificar si la consulta es un número puro
@@ -161,6 +208,18 @@ def multas(request):
 
 
 def etiquetas(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     listacopias=[]
     for i in vaciocopias:
         listacopias.append(i)
@@ -175,6 +234,18 @@ def etiquetas(request):
     listacopias=ordena(listacopias)
     return render(request,"etiqueta.html",context={"current_tab": "etiqueta", "lista": listacopias, "vacios":vaciocopias})
 def credenciales(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     return render(request,"credencial.html",context={"current_tab": "credencial", "lista": listacredenciales,"vacios":vacioalum})
 
 def ordena(x):
@@ -194,6 +265,18 @@ def ordena(x):
     return(lista)
 
 def login_view(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -209,6 +292,18 @@ def login_view(request):
     return render(request, 'login.html')
 
 def alumno_pest(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     query = request.GET.get('q')
     if query:
         # Verificar si la consulta es un número puro
@@ -265,6 +360,18 @@ def agregar_alum(request):
     return render(request, 'formulario_alumno.html')
 
 def alumno_detalle(request, pk):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     alumno_obj = get_object_or_404(Alumno, clave=pk)
     return render(request, 'alumno_detalle.html', {'alumno': alumno_obj})
 
@@ -355,6 +462,18 @@ def borrar_todos_los_alumnos(request):
         return render(request, 'error.html', {'mensaje': '; '.join(e.messages)})
     
 def libros_pest(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     query = request.GET.get('q')
     if query:
         # Verificar si la consulta es un número puro
@@ -438,6 +557,18 @@ def agregar_copia(request):
 
 
 def libro_detalle(request, codigolibro):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     libro_obj = get_object_or_404(Libro, codigolibro=codigolibro)
     return render(request, 'libros_detalle.html', {'libro': libro_obj})
 
@@ -569,6 +700,18 @@ def eliminar_libros_por_titulo(request):
     
 
 def busqueda_pest(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     query = request.GET.get('q')
     if query:
         # Verificar si la consulta es un número puro
@@ -585,6 +728,18 @@ def busqueda_pest(request):
 
 
 def busqeda_detalle(request, clavecopia):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     # Usamos get_object_or_404 para obtener el objeto alumno o retornar un error 404 si no se encuentra
     copia_obj = get_object_or_404(Copia, clavecopia=clavecopia)
     
@@ -647,6 +802,18 @@ def eliminar_copia(request, pk):
 
 
 def nuevo_prestamo(request):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     if request.method == 'POST':
         clave_alumno = request.POST.get('clave_alumno')
         clave_copia = request.POST.get('clave_copia')
@@ -698,6 +865,18 @@ def nuevo_prestamo(request):
     return render(request, 'error.html', {'mensaje': error_message})
 
 def completar_prestamo(request, pk):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     prestamo = Prestamo.objects.get(pk=pk)
     prestamo.activo = False
     prestamo.fecha_regreso = timezone.now().date()
@@ -715,6 +894,18 @@ def completar_prestamo(request, pk):
     return redirect('/retorno')
 
 def ampliar_prestamo(request, pk):
+    
+    prestamos_activos = Prestamo.objects.filter(activo=True, regreso__lt=timezone.now().date())
+    for prestamo in prestamos_activos:
+        multas = Multa.objects.filter(alumno=prestamo.clave_alumno)
+        if multas.exists():
+            for multa in multas:
+                if multa.actualiz != timezone.now().date():
+                    multa.monto += 2
+                    multa.actualiz = timezone.now().date()
+                    multa.save()
+                else:
+                    Multa.objects.create(monto=2, alumno=prestamo.clave_alumno, actualiz=timezone.now().date())
     prestamo = Prestamo.objects.get(pk=pk)
     prestamo.regreso += timezone.timedelta(days=7)
     prestamo.save()
